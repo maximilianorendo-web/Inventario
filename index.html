@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#19224d">
+<meta name="theme-color" content="#0b0f18">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -9,102 +9,151 @@
 <style>
 :root{--bg:#f3f4f7;--panel:#fff;--ink:#161c2b;--muted:#5d667a;--line:#dde1ea;--accent:#2756d6;--accent-ink:#fff;--accent-soft:#e3eaff;--good:#11763a;--good-soft:#e1f4e8;--bad:#c42b2b;--bad-soft:#fde8e8;--hdr:#19224d;--hdr-ink:#fff;--press:#e9ecf3;color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11151f;--panel:#1a2030;--ink:#eef0f6;--muted:#9ba5bb;--line:#2b3348;--accent:#7ba0ff;--accent-ink:#0d1530;--accent-soft:#223056;--good:#5fd18b;--good-soft:#17301f;--bad:#ff8585;--bad-soft:#3a1c1c;--hdr:#0b0f18;--press:#232a3d;color-scheme:dark}}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
-header{position:sticky;top:0;z-index:5;background:var(--hdr);color:var(--hdr-ink);display:flex;align-items:center;gap:8px;padding:10px 16px;padding-top:max(10px,env(safe-area-inset-top))}
-header h1{font-size:18px;margin:0;flex:1}
-.chip{font-size:12px;padding:3px 9px;border-radius:99px;background:rgba(255,255,255,.14);white-space:nowrap}
-.chip.ok{background:#1d6b3b}.chip.pend{background:#8a6410}.chip.mal{background:#8d2a2a}
-button,.btn{font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:12px;padding:10px 14px;cursor:pointer;min-height:44px}
-button:active{background:var(--press)}
-.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+[hidden]{display:none!important}
+input[type=search]::-webkit-search-cancel-button{-webkit-appearance:none;display:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.35 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%;padding:0 max(16px,env(safe-area-inset-left,0px)) 90px}
+.wrap{max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+header{background:var(--hdr);color:var(--hdr-ink);margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));padding:6px max(16px,env(safe-area-inset-left,0px));padding-top:max(6px,env(safe-area-inset-top))}
+header .in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:10px}
+header img{width:34px;height:34px;border-radius:9px;flex:none}
+.estado{flex:1;min-width:0;font-size:11px;line-height:1.25}
+.estado b{display:block;font-size:15px;font-weight:700}
+.estado span{display:block;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#chipSync.ok{color:#7be0a4}#chipSync.pend{color:#f2c94c}#chipSync.mal{color:#ff9b9b}
+.btn{appearance:none;border:1px solid var(--line);background:var(--panel);color:var(--ink);font:inherit;font-weight:600;border-radius:10px;padding:10px 14px;min-height:44px;cursor:pointer}
+.btn:active{background:var(--press)}
+.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 .btn.peligro{color:var(--bad)}
-header button{background:transparent;color:var(--hdr-ink);border-color:rgba(255,255,255,.3);min-height:38px;padding:6px 12px}
-nav{display:flex;gap:0;background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:56px;z-index:4}
-nav button{flex:1;border:0;border-radius:0;border-bottom:3px solid transparent;background:transparent;font-weight:600;color:var(--muted)}
-nav button[aria-selected=true]{color:var(--accent);border-bottom-color:var(--accent)}
-main{padding:14px 16px 90px;max-width:640px;margin:0 auto}
-label.c{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px}
-input[type=text],input[type=url],input[type=number],input[type=search],input:not([type]){font:inherit;width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);min-height:46px}
-input:focus,button:focus-visible{outline:3px solid var(--accent-soft);border-color:var(--accent)}
-.fila{display:flex;gap:8px;align-items:center}
-.fila>input{flex:1}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:14px;margin-top:12px}
-.ultimo .t{font-weight:700;font-size:18px}
-.ultimo .m{color:var(--muted);font-size:14px;margin-top:2px}
-.cant{display:flex;align-items:center;justify-content:center;gap:14px;margin-top:12px}
-.cant button{width:60px;height:60px;font-size:28px;border-radius:16px}
-.cant input{width:96px;text-align:center;font-size:30px;font-weight:700;min-height:60px}
-.vacio{color:var(--muted);text-align:center;padding:26px 8px}
-.res{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}.res:last-child{border-bottom:0}.res.sel{background:var(--accent-soft);margin:0 -12px;padding-left:12px;padding-right:12px}.res .tx{flex:1;min-width:0}.res .tx b{display:block}.res .tx span{color:var(--muted);font-size:13px}.res .n{color:var(--good);font-weight:700;white-space:nowrap}
-.modo{display:flex;gap:0;margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
-.modo button{flex:1;border:0;border-radius:0;font-weight:700;color:var(--muted);background:transparent}
-.modo button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
-.buscador{margin-top:12px}.buscador input{flex:1}
-.ico{width:52px;padding:0;font-size:22px;flex:none}
-.ico.escuchando{background:var(--bad-soft);border-color:var(--bad)}
-.tanda{border-color:var(--accent);background:var(--accent-soft)}
-.tanda .fila{justify-content:space-between}
-.tot{color:var(--muted);font-size:14px;margin-top:12px;text-align:center}
-.item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
-.item .tx{flex:1;min-width:0}.item .tx b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.item .tx span{color:var(--muted);font-size:13px}
-.item input{width:76px;text-align:center;min-height:42px;padding:6px}
-.item button{min-height:42px;padding:6px 12px}
+.btn.chico{min-height:36px;padding:6px 10px;font-size:14px}
+header .btn{background:transparent;color:var(--hdr-ink);border-color:rgba(255,255,255,.35);min-height:32px;padding:4px 10px;font-size:15px}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;background:var(--press);border-radius:12px;padding:3px;gap:3px;margin-top:8px}
+.tabs button{appearance:none;border:0;background:transparent;color:var(--muted);font:inherit;font-size:15px;font-weight:600;padding:0 4px;min-height:38px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--panel);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+.buscador{display:flex;gap:8px}
+.buscador .campo{position:relative;flex:1;min-width:0}
+.buscador input{width:100%;font:inherit;font-size:17px;text-overflow:ellipsis;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:12px 40px 12px 12px;min-height:52px}
+.buscador input:focus{border-color:var(--accent);outline:none}
+.buscador .x{position:absolute;right:4px;top:4px;width:44px;height:44px;border:0;background:transparent;color:var(--muted);font-size:22px;cursor:pointer}
+.btn.icono{display:inline-flex;align-items:center;justify-content:center;width:52px;min-height:52px;padding:0}
+.btn.icono.escuchando{background:var(--bad);border-color:var(--bad);color:#fff;animation:late 1s ease-in-out infinite}
+@keyframes late{50%{opacity:.65}}
+.sins{display:flex;gap:8px;flex-wrap:wrap}
+.sin{appearance:none;border:1.5px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.sin[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
+.lista{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.fila{display:flex;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line);cursor:pointer;width:100%;text-align:left;background:transparent;color:inherit;font:inherit;border-left:0;border-right:0;border-bottom:0}
+.fila:first-child{border-top:0}
+.fila:active{background:var(--press)}
+.fila[aria-selected="true"]{background:var(--accent-soft)}
+.fila .txt{flex:1;min-width:0}
+.fila .t{font-weight:600;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.fila .m{color:var(--muted);font-size:13px;overflow-wrap:anywhere}
+.fila .m .pr{color:var(--ink);font-weight:600}
+.fila .d{font-weight:800;font-size:20px;font-variant-numeric:tabular-nums;min-width:2ch;text-align:right;color:var(--good)}
+.fila.item{cursor:default}
+.fila.item input{width:76px;text-align:center;min-height:42px;padding:6px;font:inherit;font-size:17px;font-weight:700;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:10px}
+.fila.item .btn{min-height:42px;padding:6px 12px}
+.ficha{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.ficha h2{font-size:18px;line-height:1.2;margin:0;text-wrap:balance;overflow-wrap:anywhere}
+.ficha .sub{color:var(--muted);font-size:14px;overflow-wrap:anywhere}
+.dep{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.dep .rot{font-size:15px;color:var(--muted);font-weight:600}
+.dep .num{font-size:34px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
+.dep .num.cero{color:var(--bad)}
+.dep .link{margin-left:auto}
+.link{appearance:none;background:none;border:0;padding:6px 0;font:inherit;font-size:14px;font-weight:600;color:var(--accent);text-decoration:underline dotted;text-underline-offset:3px;cursor:pointer}
+.otros{color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.tres{display:grid;grid-template-columns:1fr 1.3fr 1fr;gap:8px;margin-top:2px}
+.tres button{appearance:none;border:0;border-radius:14px;min-height:52px;font:inherit;font-size:26px;font-weight:800;cursor:pointer;background:var(--accent-soft);color:var(--accent)}
+.tres input{min-width:0;width:100%;text-align:center;font:inherit;font-size:28px;font-weight:800;color:var(--ink);background:var(--panel);border:2px solid var(--line);border-radius:14px;min-height:52px}
+.vacio{text-align:center;color:var(--muted);padding:28px 12px;background:var(--panel);border:1px dashed var(--line);border-radius:14px}
+.vacio b{display:block;color:var(--ink);font-size:17px;margin-bottom:6px}
+.tanda{border:1px solid var(--accent);background:var(--accent-soft);border-radius:14px;padding:12px 14px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.tot{color:var(--muted);font-size:14px;text-align:center}
+label.c{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px;font-weight:600}
+input[type=text],input[type=url],input[type=number],input[type=search],input:not([type]){font:inherit;font-size:16px;width:100%;padding:11px 12px;border:2px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);min-height:48px}
+input:focus{border-color:var(--accent);outline:none}
 #scan{position:fixed;inset:0;z-index:20;background:#000;display:flex;flex-direction:column}
-#scan[hidden],.hoja[hidden],[hidden]{display:none!important}
 #scan video{flex:1;width:100%;object-fit:cover;min-height:0}
-.mira{position:absolute;left:12%;right:12%;top:26%;height:22%;border:3px solid rgba(255,255,255,.8);border-radius:14px;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
-.scanbar{background:#10141f;color:#fff;padding:12px 16px;padding-bottom:max(12px,env(safe-area-inset-bottom))}
-.scanbar .txt{min-height:44px;font-size:16px;margin-bottom:8px}
-.scanbar .txt.err{color:#ff9b9b}
-.scanbar .fila button{flex:1;background:#232b40;color:#fff;border-color:#37425e}
+.mira{position:absolute;left:12%;right:12%;top:22%;height:20%;border:3px solid rgba(255,255,255,.8);border-radius:14px;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+#scan .barra2{background:#111;color:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
+#scan .modos{display:grid;grid-template-columns:1fr 1fr;background:#262b38;border-radius:10px;padding:3px;gap:3px}
+#scan .modos button{appearance:none;border:0;background:transparent;color:#aab3c8;font:inherit;font-weight:600;min-height:40px;border-radius:8px}
+#scan .modos button[aria-pressed="true"]{background:#fff;color:#111}
+#scan .scan-txt{min-height:44px;line-height:1.3}
+#scan .scan-txt b{display:block;font-size:16px;overflow-wrap:anywhere}
+#scan .scan-txt span{color:#aab3c8;font-size:14px}
+#scan .scan-acc{display:flex;gap:8px}
+#scan .scan-acc #scanMenos,#scan .scan-acc #scanMas{flex:0 0 56px;font-size:20px;font-weight:700}
+#scan .scan-acc .btn{flex:1;background:#262b38;color:#fff;border-color:#3a4256;padding:10px 6px}
+#scan .scan-acc .btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+#scan .scan-acc .btn.luz[aria-pressed="true"]{background:#f2c94c;color:#222;border-color:#f2c94c}
 .hoja{position:fixed;inset:0;z-index:30;background:rgba(0,0,0,.5);display:flex;align-items:flex-end;justify-content:center}
-.hoja .in{background:var(--panel);width:100%;max-width:640px;border-radius:20px 20px 0 0;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
+.hoja .in{background:var(--panel);width:100%;max-width:560px;border-radius:20px 20px 0 0;padding:16px;padding-bottom:max(16px,env(safe-area-inset-bottom));max-height:92vh;overflow:auto}
 .hoja h2{margin:0 0 6px;font-size:18px}
-.hoja .botones{display:flex;gap:8px;margin-top:14px}.hoja .botones button{flex:1}
-.menu button{display:block;width:100%;text-align:left;margin-top:8px}
+.hoja .botones{display:flex;gap:8px;margin-top:14px}.hoja .botones .btn{flex:1}
+.hoja .fila.item{padding-left:0;padding-right:0}
+.menu .btn{display:block;width:100%;text-align:left;margin-top:8px}
 .aviso{font-size:13px;color:var(--muted);margin-top:6px}
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222a3d;color:#fff;padding:10px 16px;border-radius:12px;z-index:40;max-width:90%;text-align:center}
 progress{width:100%;height:14px;margin-top:10px}
 </style></head><body>
-<header><h1>Libros del Sur</h1><span class="chip" id="chipSync">…</span><button id="btnMenu" aria-label="Menú">☰</button></header>
-<nav role="tablist"><button role="tab" id="tabContar" aria-selected="true">CONTAR</button><button role="tab" id="tabLista" aria-selected="false">LISTA <span id="nLista"></span></button></nav>
+<header><div class="in">
+  <img src="icon-192.png" alt="" width="34" height="34">
+  <div class="estado"><b>Libros del Sur</b><span class="chip" id="chipSync">…</span></div>
+  <button class="btn" id="btnMenu" type="button" aria-label="Menú">☰</button>
+</div></header>
 
-<main id="vContar">
-  <label class="c" for="prov">Proveedor (queda asignado a lo que cuentes)</label>
-  <input id="prov" list="provs" autocomplete="off" placeholder="Ej.: Editorial Planeta">
-  <datalist id="provs"></datalist>
-  <div class="modo" role="group" aria-label="Modo"><button id="mConsultar" aria-pressed="false">CONSULTAR</button><button id="mContar" aria-pressed="true">CONTAR</button></div>
-  <div class="fila buscador"><input id="cod" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Código, título o autor"><button class="btn ico" id="btnMic" aria-label="Buscar por voz" hidden>🎤</button><button class="btn pri ico" id="btnCam" aria-label="Escanear con la cámara">📷</button></div>
-  <div id="resultados" class="card" hidden style="padding:4px 12px"></div>
-  <div id="ultimo" class="card ultimo" hidden>
-    <div class="t" id="uT"></div><div class="m" id="uM"></div>
-    <div class="m" id="uC"></div>
-    <div id="uCant"><div class="aviso" style="text-align:center;margin-top:10px">En esta tanda</div>
-    <div class="cant" style="margin-top:6px"><button id="uMenos" aria-label="Restar uno">−</button><input id="uN" type="number" inputmode="numeric" min="0"><button id="uMas" aria-label="Sumar uno">+</button></div></div>
-  </div>
-  <div id="tandaBar" class="card tanda" hidden><div class="fila"><div id="tandaTxt" style="font-weight:600"></div><button class="btn pri" id="btnRevisar">REVISAR Y CONFIRMAR</button></div></div>
-  <div class="tot" id="totales"></div>
-</main>
+<main class="wrap">
+  <div class="tabs" role="tablist"><button role="tab" id="tabContar" aria-selected="true" type="button">Buscar</button><button role="tab" id="tabLista" aria-selected="false" type="button">Contados <span id="nLista"></span></button></div>
 
-<main id="vLista" hidden>
-  <input type="search" id="q" placeholder="Buscar en lo contado">
-  <div class="tot" id="totLista"></div>
-  <div id="lista"></div>
+  <section id="vContar" class="wrap">
+    <div class="buscador">
+      <div class="campo">
+        <input id="cod" type="search" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Código, título o autor" aria-label="Buscar libro">
+        <button class="x" id="borrarQ" type="button" aria-label="Borrar búsqueda" hidden>×</button>
+      </div>
+      <button class="btn icono" id="btnMic" type="button" aria-label="Buscar por voz" title="Buscar por voz" hidden><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg></button>
+      <button class="btn icono" id="btnCam" type="button" aria-label="Escanear con la cámara" title="Escanear con la cámara"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.2-2h5.6L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg></button>
+    </div>
+    <div class="sins"><button class="sin" id="mConsultar" type="button" aria-pressed="false">Consultar</button><button class="sin" id="mContar" type="button" aria-pressed="true">Contar</button></div>
+    <div id="resultados" class="lista" hidden></div>
+    <div id="ultimo" class="ficha" hidden>
+      <h2 id="uT"></h2><div class="sub" id="uM"></div>
+      <div class="dep"><span class="rot">PVP</span><span class="num" id="uP"></span><button class="link" id="uPrecio" type="button">Cambiar precio</button></div>
+      <div class="otros" id="uC"></div>
+      <div id="uCant"><div class="aviso" style="text-align:center;margin:0 0 6px">En esta tanda</div>
+      <div class="tres"><button id="uMenos" type="button" aria-label="Restar uno">−</button><input id="uN" type="number" inputmode="numeric" min="0" aria-label="Cantidad en la tanda"><button id="uMas" type="button" aria-label="Sumar uno">+</button></div></div>
+    </div>
+    <div id="vacioBuscar" class="vacio"><b>Buscá o escaneá un libro</b>Escribí el código, el título o el autor. También podés dictarlo o usar la cámara.</div>
+    <div id="tandaBar" class="tanda" hidden><div id="tandaTxt" style="font-weight:600"></div><button class="btn pri" id="btnRevisar" type="button">Revisar y confirmar</button></div>
+    <div class="tot" id="totales"></div>
+  </section>
+
+  <section id="vLista" class="wrap" hidden>
+    <div class="buscador"><div class="campo"><input type="search" id="q" placeholder="Buscar en lo contado" autocomplete="off"></div></div>
+    <div class="tot" id="totLista"></div>
+    <div id="lista" class="lista"></div>
+  </section>
 </main>
 
 <div id="scan" hidden>
   <video id="video" playsinline muted></video><div class="mira"></div>
-  <div class="scanbar"><div class="txt" id="scanTxt">Apuntá al código de barras</div>
-    <div class="fila"><button id="scanModo">Modo: CONTAR</button><button id="scanMenos">−1 último</button><button id="scanLuz" hidden aria-pressed="false">Luz</button><button id="scanCerrar">LISTO</button></div></div>
+  <div class="barra2">
+    <div class="modos"><button type="button" id="mCons" aria-pressed="false">Consultar</button><button type="button" id="mCont" aria-pressed="true">Contar</button></div>
+    <div class="scan-txt" id="scanTxt" aria-live="polite"></div>
+    <div class="scan-acc"><button class="btn" id="scanCerrar" type="button">Cerrar</button><button class="btn luz" id="scanLuz" type="button" aria-pressed="false" hidden>Luz</button><button class="btn" id="scanMenos" type="button" aria-label="Restar uno al último">− 1</button><button class="btn" id="scanMas" type="button" aria-label="Sumar uno al último">+ 1</button><button class="btn pri" id="scanFin" type="button">Terminar</button></div>
+  </div>
 </div>
 
 <div class="hoja" id="hTanda" hidden><div class="in">
-  <h2>Confirmar lo contado</h2><div class="aviso" id="tProv"></div>
-  <div id="tLista"></div><div class="tot" id="tTot"></div>
-  <div class="botones"><button class="btn peligro" id="tDescartar">Descartar</button><button id="tSeguir">Seguir contando</button></div>
-  <div class="botones"><button class="btn pri" id="tOk">OK, sumar al stock</button></div>
+  <h2>Confirmar lo contado</h2>
+  <div id="tLista" class="lista" style="margin-top:8px"></div><div class="tot" id="tTot" style="margin-top:10px"></div>
+  <div class="botones"><button class="btn peligro" id="tDescartar" type="button">Descartar</button><button class="btn" id="tSeguir" type="button">Seguir contando</button></div>
+  <div class="botones"><button class="btn pri" id="tOk" type="button">OK, sumar al stock</button></div>
 </div></div>
 
 <div class="hoja" id="hNuevo" hidden><div class="in">
@@ -113,18 +162,27 @@ progress{width:100%;height:14px;margin-top:10px}
   <label class="c" for="nTit">Título</label><input id="nTit" autocomplete="off">
   <label class="c" for="nAut">Autor</label><input id="nAut" autocomplete="off">
   <label class="c" for="nEdi">Editorial</label><input id="nEdi" autocomplete="off">
-  <div class="botones"><button id="nCancelar">Cancelar</button><button class="btn pri" id="nGuardar">Guardar y sumar 1</button></div>
+  <label class="c" for="nPvp">PVP (opcional)</label><input id="nPvp" inputmode="decimal" autocomplete="off" placeholder="Ej.: 21500">
+  <div class="botones"><button class="btn" id="nCancelar" type="button">Cancelar</button><button class="btn pri" id="nGuardar" type="button">Guardar y sumar 1</button></div>
+</div></div>
+
+<div class="hoja" id="hPrecio" hidden><div class="in">
+  <h2>Cambiar el precio</h2><div class="aviso" id="pTit"></div>
+  <label class="c" for="pVal">PVP</label><input id="pVal" inputmode="decimal" autocomplete="off" placeholder="Ej.: 21500">
+  <div class="aviso" id="pBase"></div>
+  <div class="botones"><button class="btn" id="pCancelar" type="button">Cancelar</button><button class="btn pri" id="pGuardar" type="button">Guardar</button></div>
+  <div class="botones"><button class="btn" id="pRestaurar" type="button">Volver al precio de la base</button></div>
 </div></div>
 
 <div class="hoja" id="hMenu" hidden><div class="in menu">
   <h2>Menú</h2>
-  <button id="mExportar">⬇ Exportar el conteo (CSV)</button>
-  <button id="mSync">⟳ Sincronizar ahora</button>
-  <button id="mBase">📚 Actualizar la base de libros</button>
-  <button id="mConfig">⚙ Conexión</button>
-  <button id="mAdmin" hidden>🛠 Subir la base (administrador)</button>
+  <button class="btn" id="mExportar" type="button">⬇ Exportar el conteo (CSV)</button>
+  <button class="btn" id="mSync" type="button">⟳ Sincronizar ahora</button>
+  <button class="btn" id="mBase" type="button">📚 Actualizar la base de libros</button>
+  <button class="btn" id="mConfig" type="button">⚙ Conexión</button>
+  <button class="btn" id="mAdmin" type="button" hidden>🛠 Subir la base (administrador)</button>
   <div class="aviso" id="mInfo"></div>
-  <div class="botones"><button id="mCerrar">Cerrar</button></div>
+  <div class="botones"><button class="btn" id="mCerrar" type="button">Cerrar</button></div>
 </div></div>
 
 <div class="hoja" id="hConfig" hidden><div class="in">
@@ -132,15 +190,15 @@ progress{width:100%;height:14px;margin-top:10px}
   <label class="c" for="cfUrl">Dirección de la base (Firebase)</label><input id="cfUrl" type="url" autocomplete="off" autocapitalize="off" placeholder="https://tu-proyecto-default-rtdb.firebaseio.com">
   <label class="c" for="cfCli">Código de la librería</label><input id="cfCli" autocomplete="off" autocapitalize="off" placeholder="ej.: libreria-lopez">
   <div class="aviso">Te los pasa quien armó la app. Si abriste un link ya configurado, esto se completa solo.</div>
-  <div class="botones"><button id="cfCancelar">Cancelar</button><button class="btn pri" id="cfGuardar">Guardar</button></div>
+  <div class="botones"><button class="btn" id="cfCancelar" type="button">Cancelar</button><button class="btn pri" id="cfGuardar" type="button">Guardar</button></div>
 </div></div>
 
 <div class="hoja" id="hAdmin" hidden><div class="in">
   <h2>Subir la base de libros</h2>
-  <div class="aviso">Elegí el stock.csv (o un CSV con columnas Codigo, Titulo, Autor, Editor/Editorial, ISBN). Solo se suben esas columnas: precios, stock y ubicaciones no salen de la computadora.</div>
+  <div class="aviso">Elegí el datos.csv (con columnas Codigo, Titulo, Autor, Editor/Editorial, ISBN y Pr.Vta.1). Solo se suben esas columnas: stock, costos y ubicaciones no salen de la computadora.</div>
   <input type="file" id="adArchivo" accept=".csv,.txt" style="margin-top:10px">
   <div class="aviso" id="adInfo"></div><progress id="adProg" max="100" value="0" hidden></progress>
-  <div class="botones"><button id="adCerrar">Cerrar</button><button class="btn pri" id="adSubir" disabled>Subir a la nube</button></div>
+  <div class="botones"><button class="btn" id="adCerrar" type="button">Cerrar</button><button class="btn pri" id="adSubir" type="button" disabled>Subir a la nube</button></div>
 </div></div>
 <div class="toast" id="toast" hidden></div>
 
@@ -151,7 +209,7 @@ progress{width:100%;height:14px;margin-top:10px}
   var ES_ADMIN = /(^|[#&])admin(&|=|$)/.test(location.hash.slice(1));
 
   /* ---------- almacenamiento: configuración chica en localStorage, lo grande en IndexedDB ---------- */
-  var CFG = { url: '', cli: '', prov: '' };
+  var CFG = { url: '', cli: '' };
   function cfgLeer() { try { var o = JSON.parse(localStorage.getItem('inv_cfg') || '{}'); for (var k in o) CFG[k] = o[k]; } catch (e) {} }
   function cfgGuardar() { try { localStorage.setItem('inv_cfg', JSON.stringify(CFG)); } catch (e) {} }
   var DB = null;
@@ -181,12 +239,14 @@ progress{width:100%;height:14px;margin-top:10px}
   }
 
   /* ---------- datos ---------- */
-  var BASE = [];            // [cod, isbn, titulo, autor, editorial]
+  var BASE = [];            // [cod, otros códigos, titulo, autor, editorial, pvp]
+  var PRECIOS = {};         // precios cambiados en este teléfono: cod -> {p, t, s}   (p = 0: vuelve al de la base)
+  var EXTRASET = new Set();
   var META = null;          // {n, chunks, t} de la base que está en el teléfono
   var EXTRA = [];           // libros agregados en este teléfono: [cod, '', tit, aut, edi, t, sync]
   var TANDA = {};           // lo contado que todavía no se confirmó: cod -> cantidad
   var MODO = 'contar';      // 'contar' o 'consultar'
-  var CONTEO = {};          // cod -> {c, p, tit, a, e, t, s}   (s = ya subido a la nube)
+  var CONTEO = {};          // cod -> {c, tit, a, e, t, s}   (s = ya subido a la nube)
   var IDX = new Map();
 
   function soloCodigo(t) { return String(t || '').replace(/[^0-9Xx]/g, '').toUpperCase(); }
@@ -212,7 +272,7 @@ progress{width:100%;height:14px;margin-top:10px}
     return v;
   }
   function indexar() {
-    IDX = new Map();
+    IDX = new Map(); EXTRASET = new Set(EXTRA);
     function poner(fila) {
       variantes(soloCodigo(fila[0])).forEach(function (k) { if (k && !IDX.has(k)) IDX.set(k, fila); });
       String(fila[1] || '').split(' ').forEach(function (alt) { var i = soloCodigo(alt); if (i) variantes(i).forEach(function (k) { if (k && !IDX.has(k)) IDX.set(k, fila); }); });
@@ -241,6 +301,7 @@ progress{width:100%;height:14px;margin-top:10px}
   function pendientes() {
     var n = 0; for (var k in CONTEO) if (!CONTEO[k].s) n++;
     EXTRA.forEach(function (x) { if (!x[6]) n++; });
+    for (var p in PRECIOS) if (!PRECIOS[p].s) n++;
     return n;
   }
   function chipSync(estado) {
@@ -261,7 +322,11 @@ progress{width:100%;height:14px;margin-top:10px}
     var subidas = [];
     Object.keys(CONTEO).forEach(function (k) {
       var o = CONTEO[k];
-      if (!o.s) { var t0 = o.t; subidas.push(http('PUT', '/stock/' + claveFb(k), { c: o.c, p: o.p || '', tit: o.tit || '', a: o.a || '', e: o.e || '', t: o.t }).then(function () { if (CONTEO[k] && CONTEO[k].t === t0) CONTEO[k].s = 1; })); }
+      if (!o.s) { var t0 = o.t; subidas.push(http('PUT', '/stock/' + claveFb(k), { c: o.c, tit: o.tit || '', a: o.a || '', e: o.e || '', t: o.t }).then(function () { if (CONTEO[k] && CONTEO[k].t === t0) CONTEO[k].s = 1; })); }
+    });
+    Object.keys(PRECIOS).forEach(function (k) {
+      var o = PRECIOS[k];
+      if (!o.s) { var t1 = o.t; subidas.push(http('PUT', '/precios/' + claveFb(k), { p: o.p, t: o.t }).then(function () { if (PRECIOS[k] && PRECIOS[k].t === t1) PRECIOS[k].s = 1; })); }
     });
     EXTRA.forEach(function (x) {
       if (!x[6]) subidas.push(http('PUT', '/nuevos/' + claveFb(x[0]), { tit: x[2], a: x[3], e: x[4], t: x[5] }).then(function () { x[6] = 1; }));
@@ -273,7 +338,14 @@ progress{width:100%;height:14px;margin-top:10px}
         Object.keys(d).forEach(function (k) {
           var r = d[k], l = CONTEO[k];
           if (!r || typeof r !== 'object') return;
-          if (!l || (r.t || 0) > (l.t || 0)) CONTEO[k] = { c: r.c || 0, p: r.p || '', tit: r.tit || '', a: r.a || '', e: r.e || '', t: r.t || 0, s: 1 };
+          if (!l || (r.t || 0) > (l.t || 0)) CONTEO[k] = { c: r.c || 0, tit: r.tit || '', a: r.a || '', e: r.e || '', t: r.t || 0, s: 1 };
+        });
+      }).then(function () { return http('GET', '/precios'); }).then(function (d) {
+        d = d || {};
+        Object.keys(d).forEach(function (k) {
+          var r = d[k], l = PRECIOS[k];
+          if (!r || typeof r !== 'object') return;
+          if (!l || (r.t || 0) > (l.t || 0)) PRECIOS[k] = { p: +r.p || 0, t: r.t || 0, s: 1 };
         });
       }).then(function () { return http('GET', '/nuevos'); }).then(function (d) {
         d = d || {};
@@ -289,7 +361,7 @@ progress{width:100%;height:14px;margin-top:10px}
   var guardarT = null;
   function guardar() {
     clearTimeout(guardarT);
-    return Promise.all([kvSet('conteo', CONTEO), kvSet('extra', EXTRA), kvSet('tanda', TANDA)]);
+    return Promise.all([kvSet('conteo', CONTEO), kvSet('extra', EXTRA), kvSet('tanda', TANDA), kvSet('precios', PRECIOS)]);
   }
   function guardarPronto() { clearTimeout(guardarT); guardarT = setTimeout(guardar, 300); }
 
@@ -317,9 +389,8 @@ progress{width:100%;height:14px;margin-top:10px}
   function sumar(cod, delta, fijar) {
     var fila = buscar(cod), k = fila ? soloCodigo(fila[0]) || cod : cod;
     var o = CONTEO[k];
-    if (!o) o = CONTEO[k] = { c: 0, p: '', tit: fila ? fila[2] : '', a: fila ? fila[3] : '', e: fila ? fila[4] : '', t: 0, s: 0 };
+    if (!o) o = CONTEO[k] = { c: 0, tit: fila ? fila[2] : '', a: fila ? fila[3] : '', e: fila ? fila[4] : '', t: 0, s: 0 };
     o.c = Math.max(0, fijar != null ? fijar : o.c + delta);
-    if (delta > 0 || fijar != null) o.p = CFG.prov || o.p || '';
     o.t = ahora(); o.s = 0;
     ULT = k;
     guardarPronto(); programarSync(); pintarTodo();
@@ -345,17 +416,56 @@ progress{width:100%;height:14px;margin-top:10px}
     TANDA = {}; guardarPronto(); pintarTodo();
     return [ks.length, n];
   }
+  /* ---------- precios ---------- */
+  function precioBase(f) { return f && !EXTRASET.has(f) ? (+f[5] || 0) : 0; }
+  function precioDe(k) { var o = PRECIOS[k]; if (o && o.p > 0) return o.p; return precioBase(buscar(k)); }
+  function pesos(n) { return n > 0 ? '$ ' + n.toLocaleString('es-AR', { maximumFractionDigits: 2 }) : 'sin precio'; }
+  function numPrecio(t) {
+    var x = String(t || '').replace(/[^\d.,]/g, '');
+    if (!x) return 0;
+    if (x.indexOf(',') >= 0) x = x.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(x)) x = x.replace(/\./g, '');
+    var v = parseFloat(x); return isNaN(v) ? 0 : Math.round(v * 100) / 100;
+  }
+  var precioK = null;
+  function abrirPrecio(k) {
+    precioK = k; var d = datosDe(k), pb = precioBase(buscar(k));
+    $('pTit').textContent = d.tit || k;
+    $('pVal').value = precioDe(k) || '';
+    $('pBase').textContent = pb ? 'Precio en la base: ' + pesos(pb) : 'Este libro no tiene precio en la base.';
+    $('pRestaurar').hidden = !(PRECIOS[k] && PRECIOS[k].p > 0);
+    $('hPrecio').hidden = false; setTimeout(function () { $('pVal').focus(); $('pVal').select(); }, 50);
+  }
+  function guardarPrecio(k, v) { PRECIOS[k] = { p: v, t: ahora(), s: 0 }; guardarPronto(); programarSync(); pintarTodo(); }
+  $('pCancelar').addEventListener('click', function () { $('hPrecio').hidden = true; });
+  $('pGuardar').addEventListener('click', function () {
+    var v = numPrecio($('pVal').value); if (v <= 0) { toast('Poné un precio mayor a 0'); return; }
+    guardarPrecio(precioK, v); $('hPrecio').hidden = true; toast('Precio guardado: ' + pesos(v));
+  });
+  $('pRestaurar').addEventListener('click', function () { guardarPrecio(precioK, 0); $('hPrecio').hidden = true; toast('Vuelve al precio de la base'); });
+  $('pVal').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('pGuardar').click(); } });
+  function botonPrecio(k) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'link'; b.style.padding = '0';
+    b.textContent = pesos(precioDe(k)) + (PRECIOS[k] && PRECIOS[k].p > 0 ? ' ✎' : '');
+    b.addEventListener('click', function (ev) { ev.stopPropagation(); abrirPrecio(k); });
+    return b;
+  }
+
+  function pintarVacio() { $('vacioBuscar').hidden = !$('ultimo').hidden || !$('resultados').hidden; }
   function pintarUltimo() {
     var k = ULT, ficha = $('ultimo');
     var d = k ? datosDe(k) : null;
-    if (!d || !(d.tit || CONTEO[k] || TANDA[k])) { ficha.hidden = true; return; }
+    if (!d || !(d.tit || CONTEO[k] || TANDA[k])) { ficha.hidden = true; pintarVacio(); return; }
     ficha.hidden = false;
-    var o = CONTEO[k], t = TANDA[k] || 0;
+    var o = CONTEO[k], t = TANDA[k] || 0, pr = precioDe(k);
     $('uT').textContent = d.tit || '(sin título) ' + k;
     $('uM').textContent = [d.a, d.e, k].filter(Boolean).join(' · ');
-    $('uC').textContent = 'Contados: ' + (o ? o.c : 0) + (t ? ' · en esta tanda: ' + t : '') + (o && o.p ? ' · Prov.: ' + o.p : '');
+    $('uP').textContent = pr ? pesos(pr) : 'sin precio'; $('uP').className = 'num' + (pr ? '' : ' cero');
+    $('uPrecio').textContent = pr ? 'Cambiar precio' : 'Poner precio';
+    $('uC').textContent = 'Contados: ' + (o ? o.c : 0) + (t ? ' · en esta tanda: ' + t : '');
     $('uCant').hidden = MODO !== 'contar';
     if (document.activeElement !== $('uN')) $('uN').value = t;
+    pintarVacio();
   }
   function pintarTandaBar() {
     var ks = Object.keys(TANDA), n = 0; ks.forEach(function (k) { n += TANDA[k]; });
@@ -364,10 +474,10 @@ progress{width:100%;height:14px;margin-top:10px}
   }
   function setModo(m) {
     MODO = m === 'consultar' ? 'consultar' : 'contar'; CFG.modo = MODO; cfgGuardar();
-    $('mConsultar').setAttribute('aria-pressed', MODO === 'consultar'); $('mContar').setAttribute('aria-pressed', MODO === 'contar');
-    $('scanModo').textContent = 'Modo: ' + (MODO === 'contar' ? 'CONTAR' : 'CONSULTAR');
-    $('scanMenos').hidden = MODO !== 'contar';
-    $('cod').placeholder = 'Código, título o autor';
+    var c = MODO === 'contar';
+    $('mConsultar').setAttribute('aria-pressed', !c); $('mContar').setAttribute('aria-pressed', c);
+    $('mCons').setAttribute('aria-pressed', !c); $('mCont').setAttribute('aria-pressed', c);
+    $('scanMenos').hidden = !c; $('scanMas').hidden = !c; $('scanFin').hidden = !c;
     pintarUltimo(); pintarResultados();
   }
   function totales() {
@@ -376,38 +486,44 @@ progress{width:100%;height:14px;margin-top:10px}
   }
   function pintarTodo() {
     var tt = totales();
-    $('totales').textContent = tt[0] ? tt[0] + ' títulos · ' + tt[1] + ' ejemplares contados' : 'Todavía no contaste nada';
+    $('totales').textContent = tt[0] ? tt[0] + ' títulos · ' + tt[1] + ' ejemplares contados' : '';
     $('nLista').textContent = tt[0] ? '(' + tt[0] + ')' : '';
     pintarUltimo(); pintarTandaBar();
     if (!$('vLista').hidden) pintarLista();
     if (!$('hTanda').hidden) pintarTanda();
-    var ps = {}; for (var k in CONTEO) if (CONTEO[k].p) ps[CONTEO[k].p] = 1;
-    var dl = $('provs'); dl.innerHTML = '';
-    Object.keys(ps).sort().forEach(function (p) { var o = document.createElement('option'); o.value = p; dl.appendChild(o); });
     chipSync();
   }
   function norm(t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+  function filaItem(k, tit, sub, valor, onCambio, onSacar, ya) {
+    var f = document.createElement('div'); f.className = 'fila item';
+    var tx = document.createElement('div'); tx.className = 'txt';
+    var b = document.createElement('div'); b.className = 't'; b.textContent = tit || k;
+    var s = document.createElement('div'); s.className = 'm'; s.textContent = sub;
+    var p = document.createElement('div'); p.className = 'm'; p.appendChild(botonPrecio(k)); if (ya) p.appendChild(document.createTextNode(' · ' + ya));
+    tx.appendChild(b); tx.appendChild(s); tx.appendChild(p);
+    var i = document.createElement('input'); i.type = 'number'; i.inputMode = 'numeric'; i.min = '0'; i.value = valor; i.setAttribute('aria-label', 'Cantidad de ' + (tit || k));
+    i.addEventListener('change', function () { var v = parseInt(i.value, 10); if (isNaN(v) || v < 0) { i.value = valor; return; } onCambio(v); });
+    var x = document.createElement('button'); x.type = 'button'; x.className = 'btn'; x.textContent = '×'; x.setAttribute('aria-label', 'Sacar'); x.addEventListener('click', onSacar);
+    f.appendChild(tx); f.appendChild(i); f.appendChild(x); return f;
+  }
   function pintarLista() {
     var q = norm($('q').value).split(/\s+/).filter(Boolean), l = $('lista'); l.innerHTML = '';
     var claves = Object.keys(CONTEO).filter(function (k) { return CONTEO[k].c > 0; }).sort(function (a, b) { return CONTEO[b].t - CONTEO[a].t; });
-    var n = 0, u = 0;
+    var n = 0, u = 0, valor = 0;
     claves.forEach(function (k) {
-      var o = CONTEO[k], hay = norm(o.tit + ' ' + o.a + ' ' + k + ' ' + o.p);
+      var o = CONTEO[k], hay = norm(o.tit + ' ' + o.a + ' ' + k);
       if (q.length && !q.every(function (w) { return hay.indexOf(w) >= 0; })) return;
-      n++; u += o.c;
+      n++; u += o.c; valor += o.c * precioDe(k);
       if (n > 200) return;
-      var f = document.createElement('div'); f.className = 'item';
-      var tx = document.createElement('div'); tx.className = 'tx';
-      var b = document.createElement('b'); b.textContent = o.tit || k;
-      var s = document.createElement('span'); s.textContent = [o.a, o.p].filter(Boolean).join(' · ') || k;
-      tx.appendChild(b); tx.appendChild(s);
-      var i = document.createElement('input'); i.type = 'number'; i.inputMode = 'numeric'; i.min = '0'; i.value = o.c; i.setAttribute('aria-label', 'Cantidad de ' + (o.tit || k));
-      i.addEventListener('change', function () { var v = parseInt(i.value, 10); if (isNaN(v) || v < 0) { i.value = o.c; return; } sumar(k, 0, v); });
-      var x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Sacar');
-      x.addEventListener('click', function () { if (confirm('¿Sacar «' + (o.tit || k) + '» del conteo?')) { sumar(k, 0, 0); } });
-      f.appendChild(tx); f.appendChild(i); f.appendChild(x); l.appendChild(f);
+      l.appendChild(filaItem(k, o.tit, [o.a, o.e].filter(Boolean).join(' · ') || k, o.c,
+        function (v) { sumar(k, 0, v); },
+        function () { if (confirm('¿Sacar «' + (o.tit || k) + '» del conteo?')) sumar(k, 0, 0); }));
     });
-    $('totLista').textContent = n ? n + ' títulos · ' + u + ' ejemplares' + (n > 200 ? ' (se muestran 200; buscá para ver el resto)' : '') : (claves.length ? 'Nada coincide' : 'Todavía no contaste nada');
+    l.hidden = !n;
+    $('totLista').innerHTML = '';
+    var tl = $('totLista');
+    if (!n) { var v = document.createElement('div'); v.className = 'vacio'; var bb = document.createElement('b'); bb.textContent = claves.length ? 'Nada coincide' : 'Todavía no contaste nada'; v.appendChild(bb); if (!claves.length) v.appendChild(document.createTextNode('Lo que confirmes en el modo Contar aparece acá.')); tl.appendChild(v); }
+    else tl.textContent = n + ' títulos · ' + u + ' ejemplares' + (valor ? ' · valor a PVP ' + pesos(valor) : '') + (n > 200 ? ' (se muestran 200; buscá para ver el resto)' : '');
   }
 
   /* ---------- lectura de un código ---------- */
@@ -422,20 +538,31 @@ progress{width:100%;height:14px;margin-top:10px}
     } catch (e) {}
   }
   var pausaScan = false;
-  function textoScan(t, err) { var e = $('scanTxt'); e.textContent = t; e.className = 'txt' + (err ? ' err' : ''); }
+  function resumenTanda() {
+    var ks = Object.keys(TANDA), n = 0; ks.forEach(function (k) { n += TANDA[k]; });
+    return ks.length ? 'Contados: ' + n + (n === 1 ? ' ejemplar' : ' ejemplares') + ' · ' + ks.length + (ks.length === 1 ? ' título' : ' títulos') : '';
+  }
+  function textoScan(msg, mal, sub) {
+    var el = $('scanTxt'); el.innerHTML = '';
+    var b = document.createElement('b'), sp = document.createElement('span');
+    b.textContent = msg || (MODO === 'contar' ? 'Leer ISBN' : 'Apuntá al código de barras');
+    if (mal) b.style.color = '#ff8585';
+    sp.textContent = sub != null ? sub : (MODO === 'contar' ? resumenTanda() : '');
+    el.appendChild(b); el.appendChild(sp);
+  }
   function leido(crudo, desdeCamara) {
     var c = soloCodigo(crudo);
     if (c.length < 8) { pitar(false); if (desdeCamara) textoScan('Código no válido: ' + crudo, true); else toast('Código no válido'); return; }
     var fila = buscar(c);
     if (fila) {
-      var k = claveDe(c), d = datosDe(k), o = CONTEO[k];
+      var k = claveDe(c), d = datosDe(k), o = CONTEO[k], pr = precioDe(k);
       pitar(true);
       if (MODO === 'contar') {
         var n = agregarTanda(k, 1);
-        if (desdeCamara) textoScan('+1 · ' + d.tit + ' · en la tanda ' + n + (o ? ' (ya contados ' + o.c + ')' : ''));
+        if (desdeCamara) textoScan('+1 · ' + d.tit, false, [pesos(pr), 'en la tanda ' + n + (o ? ' (ya contados ' + o.c + ')' : ''), resumenTanda()].filter(Boolean).join(' · '));
       } else {
         ULT = k; pintarTodo();
-        if (desdeCamara) textoScan(d.tit + ' · ' + [d.a, d.e].filter(Boolean).join(' · ') + ' · contados ' + (o ? o.c : 0));
+        if (desdeCamara) textoScan(d.tit, false, [d.a, pesos(pr), 'contados ' + (o ? o.c : 0)].filter(Boolean).join(' · '));
       }
     } else {
       pitar(false);
@@ -462,37 +589,39 @@ progress{width:100%;height:14px;margin-top:10px}
   }
   function pintarResultados() {
     var q = $('cod').value.trim(), box = $('resultados');
-    if (!q || /^[\d\sXx-]+$/.test(q)) { RES = []; box.hidden = true; return; }     // solo números: es un código, no se busca por texto
+    $('borrarQ').hidden = !q;
+    if (!q || /^[\d\sXx-]+$/.test(q)) { RES = []; box.hidden = true; pintarVacio(); return; }     // solo números: es un código, no se busca por texto
     RES = buscarTexto(q); RES_SEL = 0; box.innerHTML = '';
-    if (!RES.length) { box.hidden = false; var v = document.createElement('div'); v.className = 'vacio'; v.textContent = BASE.length ? 'No encontré ningún libro con eso' : 'Todavía no hay base cargada'; box.appendChild(v); return; }
+    if (!RES.length) { box.hidden = false; var v = document.createElement('div'); v.className = 'vacio'; v.style.border = '0'; var bb = document.createElement('b'); bb.textContent = BASE.length ? 'No encontré ningún libro con eso' : 'Todavía no hay base cargada'; v.appendChild(bb); box.appendChild(v); pintarVacio(); return; }
     RES.forEach(function (f, i) {
       var cod = soloCodigo(f[0]), o = CONTEO[cod];
-      var d = document.createElement('div'); d.className = 'res' + (i === 0 ? ' sel' : '');
-      var tx = document.createElement('div'); tx.className = 'tx';
-      var b = document.createElement('b'); b.textContent = f[2];
-      var sp = document.createElement('span'); sp.textContent = [f[3], f[4]].filter(Boolean).join(' · ');
-      tx.appendChild(b); tx.appendChild(sp); d.appendChild(tx);
-      if (o && o.c > 0) { var n = document.createElement('div'); n.className = 'n'; n.textContent = '×' + o.c; d.appendChild(n); }
+      var d = document.createElement('div'); d.className = 'fila'; d.setAttribute('aria-selected', i === 0);
+      var tx = document.createElement('div'); tx.className = 'txt';
+      var b = document.createElement('div'); b.className = 't'; b.textContent = f[2];
+      var sp = document.createElement('div'); sp.className = 'm'; sp.textContent = [f[3], f[4]].filter(Boolean).join(' · ');
+      var pr = document.createElement('div'); pr.className = 'm'; var ps = document.createElement('span'); ps.className = 'pr'; ps.textContent = pesos(precioDe(cod)); pr.appendChild(ps);
+      tx.appendChild(b); tx.appendChild(sp); tx.appendChild(pr); d.appendChild(tx);
+      if (o && o.c > 0) { var n = document.createElement('div'); n.className = 'd'; n.textContent = '×' + o.c; d.appendChild(n); }
       d.addEventListener('click', function () { elegirResultado(f); });
       box.appendChild(d);
     });
-    box.hidden = false;
+    box.hidden = false; pintarVacio();
   }
   function elegirResultado(f) {
     var k = soloCodigo(f[0]);
     if (MODO === 'contar') { agregarTanda(k, 1); pitar(true); } else { ULT = k; pintarTodo(); }
-    $('cod').value = ''; $('resultados').hidden = true; RES = []; $('cod').focus();
+    $('cod').value = ''; $('resultados').hidden = true; RES = []; $('borrarQ').hidden = true; pintarVacio(); $('cod').focus();
   }
   function moverSel(d) {
     if (!RES.length) return;
     RES_SEL = (RES_SEL + d + RES.length) % RES.length;
     var h = $('resultados').children;
-    for (var i = 0; i < h.length; i++) h[i].classList.toggle('sel', i === RES_SEL);
+    for (var i = 0; i < h.length; i++) h[i].setAttribute('aria-selected', i === RES_SEL);
     if (h[RES_SEL] && h[RES_SEL].scrollIntoView) h[RES_SEL].scrollIntoView({ block: 'nearest' });
   }
   function aceptarCodigo() {
     var v = $('cod').value.trim(); if (!v) return;
-    if (/^[\d\sXx-]+$/.test(v)) { leido(v, false); $('cod').value = ''; $('resultados').hidden = true; }
+    if (/^[\d\sXx-]+$/.test(v)) { leido(v, false); $('cod').value = ''; $('resultados').hidden = true; $('borrarQ').hidden = true; }
     else if (RES.length) elegirResultado(RES[RES_SEL]);
     else toast('No encontré ningún libro con eso');
     $('cod').focus();
@@ -502,21 +631,24 @@ progress{width:100%;height:14px;margin-top:10px}
     if (e.key === 'Enter') { e.preventDefault(); clearTimeout(bT); if (!/^[\d\sXx-]*$/.test($('cod').value) && !RES.length) pintarResultados(); aceptarCodigo(); }
     else if (e.key === 'ArrowDown') { e.preventDefault(); moverSel(1); }
     else if (e.key === 'ArrowUp') { e.preventDefault(); moverSel(-1); }
-    else if (e.key === 'Escape') { $('cod').value = ''; $('resultados').hidden = true; RES = []; }
+    else if (e.key === 'Escape') { $('cod').value = ''; $('resultados').hidden = true; RES = []; $('borrarQ').hidden = true; pintarVacio(); }
   });
   $('uMas').addEventListener('click', function () { if (ULT) agregarTanda(ULT, 1); });
   $('uMenos').addEventListener('click', function () { if (ULT) agregarTanda(ULT, -1); });
   $('uN').addEventListener('change', function () { var v = parseInt($('uN').value, 10); if (ULT && !isNaN(v) && v >= 0) agregarTanda(ULT, 0, v); });
   $('mConsultar').addEventListener('click', function () { setModo('consultar'); });
   $('mContar').addEventListener('click', function () { setModo('contar'); });
-  $('prov').addEventListener('input', function () { CFG.prov = $('prov').value.trim(); cfgGuardar(); });
+  $('mCons').addEventListener('click', function () { setModo('consultar'); textoScan('Modo Consultar', false, 'Solo muestra el libro, no suma'); });
+  $('mCont').addEventListener('click', function () { setModo('contar'); textoScan(); });
+  $('uPrecio').addEventListener('click', function () { if (ULT) abrirPrecio(ULT); });
+  $('borrarQ').addEventListener('click', function () { $('cod').value = ''; pintarResultados(); $('cod').focus(); });
 
   /* ---------- libro nuevo ---------- */
   var nuevoCod = '';
   function abrirNuevo(c) {
     nuevoCod = c;
     $('nGuardar').textContent = MODO === 'contar' ? 'Guardar y sumar 1' : 'Guardar en la base';
-    $('nCod').value = c; $('nTit').value = ''; $('nAut').value = ''; $('nEdi').value = '';
+    $('nCod').value = c; $('nTit').value = ''; $('nAut').value = ''; $('nEdi').value = ''; $('nPvp').value = '';
     $('nuevoAviso').textContent = 'Este código no está en la base. Buscando los datos en internet…';
     $('hNuevo').hidden = false;
     buscarEnLinea(c).then(function (d) {
@@ -550,6 +682,7 @@ progress{width:100%;height:14px;margin-top:10px}
     if (!tit) { toast('Falta el título'); $('nTit').focus(); return; }
     var fila = [c, '', tit, $('nAut').value.trim(), $('nEdi').value.trim(), ahora(), 0];
     EXTRA.push(fila); indexar();
+    var pv = numPrecio($('nPvp').value); if (pv > 0) PRECIOS[c] = { p: pv, t: ahora(), s: 0 };
     pitar(true);
     if (MODO === 'contar') { agregarTanda(c, 1); if (!$('scan').hidden) textoScan('Agregado y +1 · ' + tit); }
     else { ULT = c; pintarTodo(); if (!$('scan').hidden) textoScan('Agregado a la base · ' + tit); }
@@ -590,7 +723,7 @@ progress{width:100%;height:14px;margin-top:10px}
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (s) {
         scanStream = s; var v = $('video'); v.srcObject = s; $('scan').hidden = false; v.play();
         try { var caps = s.getVideoTracks()[0].getCapabilities ? s.getVideoTracks()[0].getCapabilities() : {}; $('scanLuz').hidden = !caps.torch; } catch (e) {}
-        ULTLEC = ''; TLEC = 0; pausaScan = false; textoScan('Apuntá al código de barras');
+        ULTLEC = ''; TLEC = 0; pausaScan = false; textoScan();
         scanTimer = setInterval(function () {
           if (pausaScan) return;
           det.detect(v).then(function (r) {
@@ -609,12 +742,16 @@ progress{width:100%;height:14px;margin-top:10px}
     $('scan').hidden = true; pausaScan = false;
   }
   $('btnCam').addEventListener('click', function () { if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Este navegador no tiene cámara disponible'); return; } abrirScan(); });
-  $('scanCerrar').addEventListener('click', function () { cerrarScan(); if (MODO === 'contar' && Object.keys(TANDA).length) abrirTanda(); });
+  $('scanCerrar').addEventListener('click', function () { cerrarScan(); });
+  $('scanFin').addEventListener('click', function () { cerrarScan(); if (Object.keys(TANDA).length) abrirTanda(); else toast('No contaste nada todavía'); });
   $('scanMenos').addEventListener('click', function () {
-    if (ULT && TANDA[ULT]) { var n = agregarTanda(ULT, -1); pitar(true); textoScan('−1 · ' + datosDe(ULT).tit + ' · en la tanda ' + n); }
+    if (ULT && TANDA[ULT]) { var n = agregarTanda(ULT, -1); pitar(true); textoScan('−1 · ' + datosDe(ULT).tit, false, ['en la tanda ' + n, resumenTanda()].filter(Boolean).join(' · ')); }
     else textoScan('No hay nada de este libro en la tanda', true);
   });
-  $('scanModo').addEventListener('click', function () { setModo(MODO === 'contar' ? 'consultar' : 'contar'); textoScan(MODO === 'contar' ? 'Modo CONTAR: cada lectura suma 1 a la tanda' : 'Modo CONSULTAR: solo muestra el libro'); });
+  $('scanMas').addEventListener('click', function () {
+    if (ULT) { var n = agregarTanda(ULT, 1); pitar(true); textoScan('+1 · ' + datosDe(ULT).tit, false, ['en la tanda ' + n, resumenTanda()].filter(Boolean).join(' · ')); }
+    else textoScan('Primero leé un libro', true);
+  });
   $('scanLuz').addEventListener('click', function () {
     var on = this.getAttribute('aria-pressed') !== 'true', b = this;
     try { scanStream.getVideoTracks()[0].applyConstraints({ advanced: [{ torch: on }] }).then(function () { b.setAttribute('aria-pressed', on); }, function () { toast('No se puede prender la luz'); }); } catch (e) {}
@@ -622,22 +759,15 @@ progress{width:100%;height:14px;margin-top:10px}
 
   /* ---------- confirmar la tanda ---------- */
   function pintarTanda() {
-    var l = $('tLista'); l.innerHTML = ''; var ks = Object.keys(TANDA), n = 0;
-    $('tProv').textContent = 'Proveedor: ' + (CFG.prov || '(sin proveedor)');
+    var l = $('tLista'); l.innerHTML = ''; var ks = Object.keys(TANDA), n = 0, valor = 0;
     ks.forEach(function (k) {
-      n += TANDA[k]; var d = datosDe(k), o = CONTEO[k];
-      var f = document.createElement('div'); f.className = 'item';
-      var tx = document.createElement('div'); tx.className = 'tx';
-      var b = document.createElement('b'); b.textContent = d.tit || k;
-      var sp = document.createElement('span'); sp.textContent = (o && o.c ? 'Ya contados: ' + o.c + ' · ' : '') + ([d.a, d.e].filter(Boolean).join(' · ') || k);
-      tx.appendChild(b); tx.appendChild(sp);
-      var i = document.createElement('input'); i.type = 'number'; i.inputMode = 'numeric'; i.min = '0'; i.value = TANDA[k]; i.setAttribute('aria-label', 'Cantidad de ' + (d.tit || k));
-      i.addEventListener('change', function () { var v = parseInt(i.value, 10); if (isNaN(v) || v < 0) { i.value = TANDA[k] || 0; return; } agregarTanda(k, 0, v); if (!Object.keys(TANDA).length) $('hTanda').hidden = true; });
-      var x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Sacar de la tanda');
-      x.addEventListener('click', function () { agregarTanda(k, 0, 0); if (!Object.keys(TANDA).length) $('hTanda').hidden = true; });
-      f.appendChild(tx); f.appendChild(i); f.appendChild(x); l.appendChild(f);
+      n += TANDA[k]; valor += TANDA[k] * precioDe(k); var d = datosDe(k), o = CONTEO[k];
+      l.appendChild(filaItem(k, d.tit, [d.a, d.e].filter(Boolean).join(' · ') || k, TANDA[k],
+        function (v) { agregarTanda(k, 0, v); if (!Object.keys(TANDA).length) $('hTanda').hidden = true; },
+        function () { agregarTanda(k, 0, 0); if (!Object.keys(TANDA).length) $('hTanda').hidden = true; },
+        o && o.c ? 'ya contados: ' + o.c : ''));
     });
-    $('tTot').textContent = ks.length + (ks.length === 1 ? ' título · ' : ' títulos · ') + n + (n === 1 ? ' ejemplar' : ' ejemplares');
+    $('tTot').textContent = ks.length + (ks.length === 1 ? ' título · ' : ' títulos · ') + n + (n === 1 ? ' ejemplar' : ' ejemplares') + (valor ? ' · ' + pesos(valor) : '');
   }
   function abrirTanda() { if (!Object.keys(TANDA).length) { toast('La tanda está vacía'); return; } pintarTanda(); $('hTanda').hidden = false; }
   $('btnRevisar').addEventListener('click', abrirTanda);
@@ -663,10 +793,10 @@ progress{width:100%;height:14px;margin-top:10px}
   /* ---------- exportar ---------- */
   function csvCampo(v) { v = String(v == null ? '' : v); return /[;"\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function exportar() {
-    var filas = [['codigo', 'titulo', 'autor', 'editorial', 'proveedor', 'cantidad']];
+    var filas = [['codigo', 'titulo', 'autor', 'editorial', 'pvp', 'cantidad']];
     Object.keys(CONTEO).filter(function (k) { return CONTEO[k].c > 0; }).sort(function (a, b) {
-      return norm(CONTEO[a].p + CONTEO[a].tit).localeCompare(norm(CONTEO[b].p + CONTEO[b].tit));
-    }).forEach(function (k) { var o = CONTEO[k]; filas.push([k, o.tit, o.a, o.e, o.p, o.c]); });
+      return norm(CONTEO[a].tit).localeCompare(norm(CONTEO[b].tit));
+    }).forEach(function (k) { var o = CONTEO[k]; var pr = precioDe(k); filas.push([k, o.tit, o.a, o.e, pr ? String(pr).replace('.', ',') : '', o.c]); });
     if (filas.length === 1) { toast('Todavía no contaste nada'); return; }
     var texto = '﻿' + filas.map(function (f) { return f.map(csvCampo).join(';'); }).join('\r\n') + '\r\n';
     var d = new Date(), nombre = 'inventario_' + d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + '.csv';
@@ -697,6 +827,7 @@ progress{width:100%;height:14px;margin-top:10px}
     try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { return new TextDecoder('windows-1252').decode(buf); }
   }
   var ADMIN_FILAS = null;
+  function iPvpTxt(filas) { var n = 0; filas.forEach(function (f) { if (f[5] > 0) n++; }); return ' (' + n.toLocaleString('es-AR') + ' con precio)'; }
   function leerBaseCsv(buf) {
     var t = decodificar(buf).replace(/^﻿/, '');
     var prim = t.slice(0, t.indexOf('\n') > 0 ? t.indexOf('\n') : 2000), sep = (prim.split(';').length >= prim.split(',').length) ? ';' : ',';
@@ -705,7 +836,7 @@ progress{width:100%;height:14px;margin-top:10px}
     var cab = filas[0].map(function (h) { return norm(h).replace(/[^a-z0-9]/g, ''); });
     function col() { for (var a = 0; a < arguments.length; a++) { var i = cab.indexOf(arguments[a]); if (i >= 0) return i; } return -1; }
     var iCod = col('codigo', 'ean', 'ean13', 'codbarra', 'codigodebarras'), iBar = col('codbarra', 'codigodebarras', 'ean13', 'ean'), iIsbn = col('isbn'),
-      iTit = col('titulo', 'nombre', 'descripcion'), iAut = col('autor', 'autores'), iEdi = col('editorial', 'editor');
+      iTit = col('titulo', 'nombre', 'descripcion'), iAut = col('autor', 'autores'), iEdi = col('editorial', 'editor'), iPvp = col('prvta1', 'pvp', 'precio', 'preciovta');
     if (iTit < 0 || (iCod < 0 && iIsbn < 0 && iBar < 0)) throw new Error('No encuentro las columnas Codigo y Titulo en la primera fila');
     var vistos = new Set(), out = [], sinCod = 0;
     /* Un código sirve para escanear si, sin ceros a la izquierda, tiene 13 dígitos (EAN/ISBN-13) o 10 (ISBN-10). Los demás son códigos internos. */
@@ -727,7 +858,7 @@ progress{width:100%;height:14px;margin-top:10px}
       if (!todos.length) { sinCod++; continue; }
       var cod = todos[0];
       if (vistos.has(cod)) continue; vistos.add(cod);
-      out.push([cod, todos.slice(1).join(' '), tit, iAut >= 0 ? (f[iAut] || '').trim() : '', iEdi >= 0 ? (f[iEdi] || '').trim() : '']);
+      out.push([cod, todos.slice(1).join(' '), tit, iAut >= 0 ? (f[iAut] || '').trim() : '', iEdi >= 0 ? (f[iEdi] || '').trim() : '', iPvp >= 0 ? numPrecio(f[iPvp]) : 0]);
     }
     return { filas: out, sinCodigo: sinCod };
   }
@@ -737,7 +868,7 @@ progress{width:100%;height:14px;margin-top:10px}
     $('adInfo').textContent = 'Leyendo…';
     f.arrayBuffer().then(function (buf) {
       var r = leerBaseCsv(buf); ADMIN_FILAS = r.filas;
-      $('adInfo').textContent = r.filas.length.toLocaleString('es-AR') + ' libros listos para subir' + (r.sinCodigo ? ' (' + r.sinCodigo + ' filas sin código válido o sin título quedaron afuera)' : '') + '.';
+      $('adInfo').textContent = r.filas.length.toLocaleString('es-AR') + ' libros listos para subir' + (iPvpTxt(r.filas)) + (r.sinCodigo ? ' (' + r.sinCodigo + ' filas sin código válido o sin título quedaron afuera)' : '') + '.';
       $('adSubir').disabled = !r.filas.length;
     }).catch(function (e) { $('adInfo').textContent = 'Error: ' + e.message; });
   });
@@ -797,15 +928,14 @@ progress{width:100%;height:14px;margin-top:10px}
     cfgGuardar();
   }
   cfgLeer(); aplicarHash();
-  $('prov').value = CFG.prov || '';
   MODO = CFG.modo === 'consultar' ? 'consultar' : 'contar';
-  idb().then(function () { return Promise.all([kvGet('base'), kvGet('basemeta'), kvGet('conteo'), kvGet('extra'), kvGet('tanda')]); }).then(function (r) {
-    BASE = r[0] || []; META = r[1] || null; CONTEO = r[2] || {}; EXTRA = r[3] || []; TANDA = r[4] || {};
+  idb().then(function () { return Promise.all([kvGet('base'), kvGet('basemeta'), kvGet('conteo'), kvGet('extra'), kvGet('tanda'), kvGet('precios')]); }).then(function (r) {
+    BASE = r[0] || []; META = r[1] || null; CONTEO = r[2] || {}; EXTRA = r[3] || []; TANDA = r[4] || {}; PRECIOS = r[5] || {};
     indexar(); setModo(MODO); pintarTodo(); chipSync();
     if (!nubeOk()) { hoja('hConfig', true); $('cfUrl').value = CFG.url; $('cfCli').value = CFG.cli; }
     else bajarBase(false, true).then(function () { return sincronizar(true); });
   });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
-  window.__inv = { tanda: function () { return TANDA; }, modo: function () { return MODO; }, leido: leido, conteo: function () { return CONTEO; }, base: function () { return BASE.length; }, extra: function () { return EXTRA; } };
+  window.__inv = { tanda: function () { return TANDA; }, modo: function () { return MODO; }, leido: leido, conteo: function () { return CONTEO; }, base: function () { return BASE.length; }, precios: function () { return PRECIOS; }, precioDe: precioDe, extra: function () { return EXTRA; } };
 })();
 </script></body></html>
