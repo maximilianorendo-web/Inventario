@@ -557,7 +557,8 @@ progress{width:100%;height:14px;margin-top:10px}
     if (fila) {
       var k = claveDe(c), d = datosDe(k), o = CONTEO[k], pr = precioDe(k);
       pitar(true);
-      if (MODO === 'contar') {
+      if (MODO === 'contar' && !desdeCamara) { ULT = k; pintarTodo(); }
+      else if (MODO === 'contar') {
         var n = agregarTanda(k, 1);
         if (desdeCamara) textoScan('+1 · ' + d.tit, false, [pesos(pr), 'en la tanda ' + n + (o ? ' (ya contados ' + o.c + ')' : ''), resumenTanda()].filter(Boolean).join(' · '));
       } else {
@@ -567,7 +568,7 @@ progress{width:100%;height:14px;margin-top:10px}
     } else {
       pitar(false);
       pausaScan = true;
-      abrirNuevo(c);
+      abrirNuevo(c, desdeCamara);
     }
   }
   /* ---------- búsqueda por título / autor ---------- */
@@ -609,7 +610,7 @@ progress{width:100%;height:14px;margin-top:10px}
   }
   function elegirResultado(f) {
     var k = soloCodigo(f[0]);
-    if (MODO === 'contar') { agregarTanda(k, 1); pitar(true); } else { ULT = k; pintarTodo(); }
+    pitar(true); ULT = k; pintarTodo();
     $('cod').value = ''; $('resultados').hidden = true; RES = []; $('borrarQ').hidden = true; pintarVacio(); $('cod').focus();
   }
   function moverSel(d) {
@@ -645,9 +646,10 @@ progress{width:100%;height:14px;margin-top:10px}
 
   /* ---------- libro nuevo ---------- */
   var nuevoCod = '';
-  function abrirNuevo(c) {
-    nuevoCod = c;
-    $('nGuardar').textContent = MODO === 'contar' ? 'Guardar y sumar 1' : 'Guardar en la base';
+  var nuevoSuma = false;
+  function abrirNuevo(c, desdeCamara) {
+    nuevoCod = c; nuevoSuma = MODO === 'contar' && !!desdeCamara;
+    $('nGuardar').textContent = nuevoSuma ? 'Guardar y sumar 1' : 'Guardar en la base';
     $('nCod').value = c; $('nTit').value = ''; $('nAut').value = ''; $('nEdi').value = ''; $('nPvp').value = '';
     $('nuevoAviso').textContent = 'Este código no está en la base. Buscando los datos en internet…';
     $('hNuevo').hidden = false;
@@ -684,7 +686,7 @@ progress{width:100%;height:14px;margin-top:10px}
     EXTRA.push(fila); indexar();
     var pv = numPrecio($('nPvp').value); if (pv > 0) PRECIOS[c] = { p: pv, t: ahora(), s: 0 };
     pitar(true);
-    if (MODO === 'contar') { agregarTanda(c, 1); if (!$('scan').hidden) textoScan('Agregado y +1 · ' + tit); }
+    if (nuevoSuma) { agregarTanda(c, 1); if (!$('scan').hidden) textoScan('Agregado y +1 · ' + tit); }
     else { ULT = c; pintarTodo(); if (!$('scan').hidden) textoScan('Agregado a la base · ' + tit); }
     guardarPronto(); programarSync();
     cerrarNuevo();
@@ -827,7 +829,7 @@ progress{width:100%;height:14px;margin-top:10px}
     try { return new TextDecoder('utf-8', { fatal: true }).decode(buf); } catch (e) { return new TextDecoder('windows-1252').decode(buf); }
   }
   var ADMIN_FILAS = null;
-  function iPvpTxt(filas) { var n = 0; filas.forEach(function (f) { if (f[5] > 0) n++; }); return ' (' + n.toLocaleString('es-AR') + ' con precio)'; }
+  function iPvpTxt(filas) { var n = 0; filas.forEach(function (f) { if (f[5] > 0) n++; }); return ' (' + n.toLocaleString('es-AR') + ' con precio)' + (n ? '' : ' ⚠ NO ENCONTRÉ LA COLUMNA DE PRECIO: no la subas así'); }
   function leerBaseCsv(buf) {
     var t = decodificar(buf).replace(/^﻿/, '');
     var prim = t.slice(0, t.indexOf('\n') > 0 ? t.indexOf('\n') : 2000), sep = (prim.split(';').length >= prim.split(',').length) ? ';' : ',';
@@ -836,7 +838,8 @@ progress{width:100%;height:14px;margin-top:10px}
     var cab = filas[0].map(function (h) { return norm(h).replace(/[^a-z0-9]/g, ''); });
     function col() { for (var a = 0; a < arguments.length; a++) { var i = cab.indexOf(arguments[a]); if (i >= 0) return i; } return -1; }
     var iCod = col('codigo', 'ean', 'ean13', 'codbarra', 'codigodebarras'), iBar = col('codbarra', 'codigodebarras', 'ean13', 'ean'), iIsbn = col('isbn'),
-      iTit = col('titulo', 'nombre', 'descripcion'), iAut = col('autor', 'autores'), iEdi = col('editorial', 'editor'), iPvp = col('prvta1', 'pvp', 'precio', 'preciovta');
+      iTit = col('titulo', 'nombre', 'descripcion'), iAut = col('autor', 'autores'), iEdi = col('editorial', 'editor'), iPvp = col('prvta1', 'precios1', 'precio1', 'pvp1', 'pvp', 'precios', 'precio', 'preciovta', 'prvta');
+    if (iPvp < 0) cab.forEach(function (h, i) { if (iPvp < 0 && /^(precio|pvp|prvta|prvt)/.test(h) && !/compra|cpr|expor/.test(h)) iPvp = i; });
     if (iTit < 0 || (iCod < 0 && iIsbn < 0 && iBar < 0)) throw new Error('No encuentro las columnas Codigo y Titulo en la primera fila');
     var vistos = new Set(), out = [], sinCod = 0;
     /* Un código sirve para escanear si, sin ceros a la izquierda, tiene 13 dígitos (EAN/ISBN-13) o 10 (ISBN-10). Los demás son códigos internos. */
