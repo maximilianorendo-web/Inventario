@@ -37,6 +37,14 @@ input:focus,button:focus-visible{outline:3px solid var(--accent-soft);border-col
 .cant input{width:96px;text-align:center;font-size:30px;font-weight:700;min-height:60px}
 .vacio{color:var(--muted);text-align:center;padding:26px 8px}
 .res{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}.res:last-child{border-bottom:0}.res.sel{background:var(--accent-soft);margin:0 -12px;padding-left:12px;padding-right:12px}.res .tx{flex:1;min-width:0}.res .tx b{display:block}.res .tx span{color:var(--muted);font-size:13px}.res .n{color:var(--good);font-weight:700;white-space:nowrap}
+.modo{display:flex;gap:0;margin-top:12px;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--panel)}
+.modo button{flex:1;border:0;border-radius:0;font-weight:700;color:var(--muted);background:transparent}
+.modo button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink)}
+.buscador{margin-top:12px}.buscador input{flex:1}
+.ico{width:52px;padding:0;font-size:22px;flex:none}
+.ico.escuchando{background:var(--bad-soft);border-color:var(--bad)}
+.tanda{border-color:var(--accent);background:var(--accent-soft)}
+.tanda .fila{justify-content:space-between}
 .tot{color:var(--muted);font-size:14px;margin-top:12px;text-align:center}
 .item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .item .tx{flex:1;min-width:0}.item .tx b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -67,14 +75,16 @@ progress{width:100%;height:14px;margin-top:10px}
   <label class="c" for="prov">Proveedor (queda asignado a lo que cuentes)</label>
   <input id="prov" list="provs" autocomplete="off" placeholder="Ej.: Editorial Planeta">
   <datalist id="provs"></datalist>
-  <div class="fila" style="margin-top:12px"><button class="btn pri" id="btnScan" style="flex:1;font-size:18px;min-height:56px">📷 ESCANEAR</button></div>
-  <label class="c" for="cod">O escribí el código, el título o el autor (Enter suma 1)</label>
-  <div class="fila"><input id="cod" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="9789… o parte del título"><button class="btn" id="btnCod">SUMAR</button></div>
+  <div class="modo" role="group" aria-label="Modo"><button id="mConsultar" aria-pressed="false">CONSULTAR</button><button id="mContar" aria-pressed="true">CONTAR</button></div>
+  <div class="fila buscador"><input id="cod" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Código, título o autor"><button class="btn ico" id="btnMic" aria-label="Buscar por voz" hidden>🎤</button><button class="btn pri ico" id="btnCam" aria-label="Escanear con la cámara">📷</button></div>
   <div id="resultados" class="card" hidden style="padding:4px 12px"></div>
   <div id="ultimo" class="card ultimo" hidden>
     <div class="t" id="uT"></div><div class="m" id="uM"></div>
-    <div class="cant"><button id="uMenos" aria-label="Restar uno">−</button><input id="uN" type="number" inputmode="numeric" min="0"><button id="uMas" aria-label="Sumar uno">+</button></div>
+    <div class="m" id="uC"></div>
+    <div id="uCant"><div class="aviso" style="text-align:center;margin-top:10px">En esta tanda</div>
+    <div class="cant" style="margin-top:6px"><button id="uMenos" aria-label="Restar uno">−</button><input id="uN" type="number" inputmode="numeric" min="0"><button id="uMas" aria-label="Sumar uno">+</button></div></div>
   </div>
+  <div id="tandaBar" class="card tanda" hidden><div class="fila"><div id="tandaTxt" style="font-weight:600"></div><button class="btn pri" id="btnRevisar">REVISAR Y CONFIRMAR</button></div></div>
   <div class="tot" id="totales"></div>
 </main>
 
@@ -87,8 +97,15 @@ progress{width:100%;height:14px;margin-top:10px}
 <div id="scan" hidden>
   <video id="video" playsinline muted></video><div class="mira"></div>
   <div class="scanbar"><div class="txt" id="scanTxt">Apuntá al código de barras</div>
-    <div class="fila"><button id="scanMenos">−1 último</button><button id="scanLuz" hidden aria-pressed="false">Luz</button><button id="scanCerrar">LISTO</button></div></div>
+    <div class="fila"><button id="scanModo">Modo: CONTAR</button><button id="scanMenos">−1 último</button><button id="scanLuz" hidden aria-pressed="false">Luz</button><button id="scanCerrar">LISTO</button></div></div>
 </div>
+
+<div class="hoja" id="hTanda" hidden><div class="in">
+  <h2>Confirmar lo contado</h2><div class="aviso" id="tProv"></div>
+  <div id="tLista"></div><div class="tot" id="tTot"></div>
+  <div class="botones"><button class="btn peligro" id="tDescartar">Descartar</button><button id="tSeguir">Seguir contando</button></div>
+  <div class="botones"><button class="btn pri" id="tOk">OK, sumar al stock</button></div>
+</div></div>
 
 <div class="hoja" id="hNuevo" hidden><div class="in">
   <h2>Libro nuevo</h2><div class="aviso" id="nuevoAviso">Este código no está en la base. Completá los datos y se agrega.</div>
@@ -167,6 +184,8 @@ progress{width:100%;height:14px;margin-top:10px}
   var BASE = [];            // [cod, isbn, titulo, autor, editorial]
   var META = null;          // {n, chunks, t} de la base que está en el teléfono
   var EXTRA = [];           // libros agregados en este teléfono: [cod, '', tit, aut, edi, t, sync]
+  var TANDA = {};           // lo contado que todavía no se confirmó: cod -> cantidad
+  var MODO = 'contar';      // 'contar' o 'consultar'
   var CONTEO = {};          // cod -> {c, p, tit, a, e, t, s}   (s = ya subido a la nube)
   var IDX = new Map();
 
@@ -270,7 +289,7 @@ progress{width:100%;height:14px;margin-top:10px}
   var guardarT = null;
   function guardar() {
     clearTimeout(guardarT);
-    return Promise.all([kvSet('conteo', CONTEO), kvSet('extra', EXTRA)]);
+    return Promise.all([kvSet('conteo', CONTEO), kvSet('extra', EXTRA), kvSet('tanda', TANDA)]);
   }
   function guardarPronto() { clearTimeout(guardarT); guardarT = setTimeout(guardar, 300); }
 
@@ -307,13 +326,49 @@ progress{width:100%;height:14px;margin-top:10px}
     return o;
   }
   var ULT = null;
+  function claveDe(cod) { var f = buscar(cod); return f ? (soloCodigo(f[0]) || cod) : cod; }
+  function datosDe(k) {
+    var f = buscar(k), o = CONTEO[k];
+    return { tit: f ? f[2] : (o ? o.tit : ''), a: f ? f[3] : (o ? o.a : ''), e: f ? f[4] : (o ? o.e : '') };
+  }
+  /* En modo CONTAR todo lo que se lee o se elige va a la «tanda»; recién al confirmarla pasa al stock. */
+  function agregarTanda(cod, delta, fijar) {
+    var k = claveDe(cod), n = Math.max(0, fijar != null ? fijar : (TANDA[k] || 0) + delta);
+    if (n) TANDA[k] = n; else delete TANDA[k];
+    ULT = k;
+    guardarPronto(); pintarTodo();
+    return n;
+  }
+  function confirmarTanda() {
+    var ks = Object.keys(TANDA), n = 0;
+    ks.forEach(function (k) { n += TANDA[k]; sumar(k, TANDA[k]); });
+    TANDA = {}; guardarPronto(); pintarTodo();
+    return [ks.length, n];
+  }
   function pintarUltimo() {
-    var o = ULT && CONTEO[ULT];
-    $('ultimo').hidden = !o;
-    if (!o) return;
-    $('uT').textContent = o.tit || '(sin título) ' + ULT;
-    $('uM').textContent = [o.a, o.e, ULT].filter(Boolean).join(' · ') + (o.p ? ' · Prov.: ' + o.p : '');
-    if (document.activeElement !== $('uN')) $('uN').value = o.c;
+    var k = ULT, ficha = $('ultimo');
+    var d = k ? datosDe(k) : null;
+    if (!d || !(d.tit || CONTEO[k] || TANDA[k])) { ficha.hidden = true; return; }
+    ficha.hidden = false;
+    var o = CONTEO[k], t = TANDA[k] || 0;
+    $('uT').textContent = d.tit || '(sin título) ' + k;
+    $('uM').textContent = [d.a, d.e, k].filter(Boolean).join(' · ');
+    $('uC').textContent = 'Contados: ' + (o ? o.c : 0) + (t ? ' · en esta tanda: ' + t : '') + (o && o.p ? ' · Prov.: ' + o.p : '');
+    $('uCant').hidden = MODO !== 'contar';
+    if (document.activeElement !== $('uN')) $('uN').value = t;
+  }
+  function pintarTandaBar() {
+    var ks = Object.keys(TANDA), n = 0; ks.forEach(function (k) { n += TANDA[k]; });
+    $('tandaBar').hidden = !ks.length;
+    $('tandaTxt').textContent = ks.length ? 'En la tanda: ' + ks.length + (ks.length === 1 ? ' título · ' : ' títulos · ') + n + (n === 1 ? ' ejemplar' : ' ejemplares') : '';
+  }
+  function setModo(m) {
+    MODO = m === 'consultar' ? 'consultar' : 'contar'; CFG.modo = MODO; cfgGuardar();
+    $('mConsultar').setAttribute('aria-pressed', MODO === 'consultar'); $('mContar').setAttribute('aria-pressed', MODO === 'contar');
+    $('scanModo').textContent = 'Modo: ' + (MODO === 'contar' ? 'CONTAR' : 'CONSULTAR');
+    $('scanMenos').hidden = MODO !== 'contar';
+    $('cod').placeholder = 'Código, título o autor';
+    pintarUltimo(); pintarResultados();
   }
   function totales() {
     var t = 0, n = 0; for (var k in CONTEO) if (CONTEO[k].c > 0) { n++; t += CONTEO[k].c; }
@@ -323,8 +378,9 @@ progress{width:100%;height:14px;margin-top:10px}
     var tt = totales();
     $('totales').textContent = tt[0] ? tt[0] + ' títulos · ' + tt[1] + ' ejemplares contados' : 'Todavía no contaste nada';
     $('nLista').textContent = tt[0] ? '(' + tt[0] + ')' : '';
-    pintarUltimo();
+    pintarUltimo(); pintarTandaBar();
     if (!$('vLista').hidden) pintarLista();
+    if (!$('hTanda').hidden) pintarTanda();
     var ps = {}; for (var k in CONTEO) if (CONTEO[k].p) ps[CONTEO[k].p] = 1;
     var dl = $('provs'); dl.innerHTML = '';
     Object.keys(ps).sort().forEach(function (p) { var o = document.createElement('option'); o.value = p; dl.appendChild(o); });
@@ -372,9 +428,15 @@ progress{width:100%;height:14px;margin-top:10px}
     if (c.length < 8) { pitar(false); if (desdeCamara) textoScan('Código no válido: ' + crudo, true); else toast('Código no válido'); return; }
     var fila = buscar(c);
     if (fila) {
-      var o = sumar(c, 1);
+      var k = claveDe(c), d = datosDe(k), o = CONTEO[k];
       pitar(true);
-      if (desdeCamara) textoScan('+1 · ' + (o.tit || c) + ' · contados ' + o.c);
+      if (MODO === 'contar') {
+        var n = agregarTanda(k, 1);
+        if (desdeCamara) textoScan('+1 · ' + d.tit + ' · en la tanda ' + n + (o ? ' (ya contados ' + o.c + ')' : ''));
+      } else {
+        ULT = k; pintarTodo();
+        if (desdeCamara) textoScan(d.tit + ' · ' + [d.a, d.e].filter(Boolean).join(' · ') + ' · contados ' + (o ? o.c : 0));
+      }
     } else {
       pitar(false);
       pausaScan = true;
@@ -417,7 +479,8 @@ progress{width:100%;height:14px;margin-top:10px}
     box.hidden = false;
   }
   function elegirResultado(f) {
-    sumar(soloCodigo(f[0]), 1); pitar(true);
+    var k = soloCodigo(f[0]);
+    if (MODO === 'contar') { agregarTanda(k, 1); pitar(true); } else { ULT = k; pintarTodo(); }
     $('cod').value = ''; $('resultados').hidden = true; RES = []; $('cod').focus();
   }
   function moverSel(d) {
@@ -434,7 +497,6 @@ progress{width:100%;height:14px;margin-top:10px}
     else toast('No encontré ningún libro con eso');
     $('cod').focus();
   }
-  $('btnCod').addEventListener('click', aceptarCodigo);
   $('cod').addEventListener('input', function () { clearTimeout(bT); bT = setTimeout(pintarResultados, 180); });
   $('cod').addEventListener('keydown', function (e) {
     if (e.key === 'Enter') { e.preventDefault(); clearTimeout(bT); if (!/^[\d\sXx-]*$/.test($('cod').value) && !RES.length) pintarResultados(); aceptarCodigo(); }
@@ -442,15 +504,18 @@ progress{width:100%;height:14px;margin-top:10px}
     else if (e.key === 'ArrowUp') { e.preventDefault(); moverSel(-1); }
     else if (e.key === 'Escape') { $('cod').value = ''; $('resultados').hidden = true; RES = []; }
   });
-  $('uMas').addEventListener('click', function () { if (ULT) sumar(ULT, 1); });
-  $('uMenos').addEventListener('click', function () { if (ULT) sumar(ULT, -1); });
-  $('uN').addEventListener('change', function () { var v = parseInt($('uN').value, 10); if (ULT && !isNaN(v) && v >= 0) sumar(ULT, 0, v); });
+  $('uMas').addEventListener('click', function () { if (ULT) agregarTanda(ULT, 1); });
+  $('uMenos').addEventListener('click', function () { if (ULT) agregarTanda(ULT, -1); });
+  $('uN').addEventListener('change', function () { var v = parseInt($('uN').value, 10); if (ULT && !isNaN(v) && v >= 0) agregarTanda(ULT, 0, v); });
+  $('mConsultar').addEventListener('click', function () { setModo('consultar'); });
+  $('mContar').addEventListener('click', function () { setModo('contar'); });
   $('prov').addEventListener('input', function () { CFG.prov = $('prov').value.trim(); cfgGuardar(); });
 
   /* ---------- libro nuevo ---------- */
   var nuevoCod = '';
   function abrirNuevo(c) {
     nuevoCod = c;
+    $('nGuardar').textContent = MODO === 'contar' ? 'Guardar y sumar 1' : 'Guardar en la base';
     $('nCod').value = c; $('nTit').value = ''; $('nAut').value = ''; $('nEdi').value = '';
     $('nuevoAviso').textContent = 'Este código no está en la base. Buscando los datos en internet…';
     $('hNuevo').hidden = false;
@@ -485,8 +550,10 @@ progress{width:100%;height:14px;margin-top:10px}
     if (!tit) { toast('Falta el título'); $('nTit').focus(); return; }
     var fila = [c, '', tit, $('nAut').value.trim(), $('nEdi').value.trim(), ahora(), 0];
     EXTRA.push(fila); indexar();
-    sumar(c, 1); pitar(true);
-    if (!$('scan').hidden) textoScan('Agregado y +1 · ' + tit);
+    pitar(true);
+    if (MODO === 'contar') { agregarTanda(c, 1); if (!$('scan').hidden) textoScan('Agregado y +1 · ' + tit); }
+    else { ULT = c; pintarTodo(); if (!$('scan').hidden) textoScan('Agregado a la base · ' + tit); }
+    guardarPronto(); programarSync();
     cerrarNuevo();
   });
 
@@ -541,12 +608,56 @@ progress{width:100%;height:14px;margin-top:10px}
     if (scanStream) { scanStream.getTracks().forEach(function (t) { t.stop(); }); scanStream = null; }
     $('scan').hidden = true; pausaScan = false;
   }
-  $('btnScan').addEventListener('click', function () { if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Este navegador no tiene cámara disponible'); return; } abrirScan(); });
-  $('scanCerrar').addEventListener('click', cerrarScan);
-  $('scanMenos').addEventListener('click', function () { if (ULT && CONTEO[ULT] && CONTEO[ULT].c > 0) { var o = sumar(ULT, -1); pitar(true); textoScan('−1 · ' + (o.tit || ULT) + ' · contados ' + o.c); } });
+  $('btnCam').addEventListener('click', function () { if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('Este navegador no tiene cámara disponible'); return; } abrirScan(); });
+  $('scanCerrar').addEventListener('click', function () { cerrarScan(); if (MODO === 'contar' && Object.keys(TANDA).length) abrirTanda(); });
+  $('scanMenos').addEventListener('click', function () {
+    if (ULT && TANDA[ULT]) { var n = agregarTanda(ULT, -1); pitar(true); textoScan('−1 · ' + datosDe(ULT).tit + ' · en la tanda ' + n); }
+    else textoScan('No hay nada de este libro en la tanda', true);
+  });
+  $('scanModo').addEventListener('click', function () { setModo(MODO === 'contar' ? 'consultar' : 'contar'); textoScan(MODO === 'contar' ? 'Modo CONTAR: cada lectura suma 1 a la tanda' : 'Modo CONSULTAR: solo muestra el libro'); });
   $('scanLuz').addEventListener('click', function () {
     var on = this.getAttribute('aria-pressed') !== 'true', b = this;
     try { scanStream.getVideoTracks()[0].applyConstraints({ advanced: [{ torch: on }] }).then(function () { b.setAttribute('aria-pressed', on); }, function () { toast('No se puede prender la luz'); }); } catch (e) {}
+  });
+
+  /* ---------- confirmar la tanda ---------- */
+  function pintarTanda() {
+    var l = $('tLista'); l.innerHTML = ''; var ks = Object.keys(TANDA), n = 0;
+    $('tProv').textContent = 'Proveedor: ' + (CFG.prov || '(sin proveedor)');
+    ks.forEach(function (k) {
+      n += TANDA[k]; var d = datosDe(k), o = CONTEO[k];
+      var f = document.createElement('div'); f.className = 'item';
+      var tx = document.createElement('div'); tx.className = 'tx';
+      var b = document.createElement('b'); b.textContent = d.tit || k;
+      var sp = document.createElement('span'); sp.textContent = (o && o.c ? 'Ya contados: ' + o.c + ' · ' : '') + ([d.a, d.e].filter(Boolean).join(' · ') || k);
+      tx.appendChild(b); tx.appendChild(sp);
+      var i = document.createElement('input'); i.type = 'number'; i.inputMode = 'numeric'; i.min = '0'; i.value = TANDA[k]; i.setAttribute('aria-label', 'Cantidad de ' + (d.tit || k));
+      i.addEventListener('change', function () { var v = parseInt(i.value, 10); if (isNaN(v) || v < 0) { i.value = TANDA[k] || 0; return; } agregarTanda(k, 0, v); if (!Object.keys(TANDA).length) $('hTanda').hidden = true; });
+      var x = document.createElement('button'); x.type = 'button'; x.textContent = '×'; x.setAttribute('aria-label', 'Sacar de la tanda');
+      x.addEventListener('click', function () { agregarTanda(k, 0, 0); if (!Object.keys(TANDA).length) $('hTanda').hidden = true; });
+      f.appendChild(tx); f.appendChild(i); f.appendChild(x); l.appendChild(f);
+    });
+    $('tTot').textContent = ks.length + (ks.length === 1 ? ' título · ' : ' títulos · ') + n + (n === 1 ? ' ejemplar' : ' ejemplares');
+  }
+  function abrirTanda() { if (!Object.keys(TANDA).length) { toast('La tanda está vacía'); return; } pintarTanda(); $('hTanda').hidden = false; }
+  $('btnRevisar').addEventListener('click', abrirTanda);
+  $('tSeguir').addEventListener('click', function () { $('hTanda').hidden = true; $('cod').focus(); });
+  $('tDescartar').addEventListener('click', function () { if (confirm('¿Descartar todo lo de esta tanda? No se suma al stock.')) { TANDA = {}; guardarPronto(); pintarTodo(); $('hTanda').hidden = true; } });
+  $('tOk').addEventListener('click', function () { var r = confirmarTanda(); $('hTanda').hidden = true; pitar(true); toast('✓ Sumados al stock: ' + r[0] + (r[0] === 1 ? ' título' : ' títulos') + ' · ' + r[1] + (r[1] === 1 ? ' ejemplar' : ' ejemplares')); });
+
+  /* ---------- voz (donde el navegador lo permite) ---------- */
+  var RECO = window.SpeechRecognition || window.webkitSpeechRecognition, reco = null;
+  if (RECO) $('btnMic').hidden = false;
+  $('btnMic').addEventListener('click', function () {
+    var b = this;
+    if (reco) { try { reco.stop(); } catch (e) {} return; }
+    try {
+      reco = new RECO(); reco.lang = 'es-AR'; reco.interimResults = false; reco.maxAlternatives = 1;
+      reco.onresult = function (ev) { var t = ev.results[0][0].transcript.replace(/[.,;!?]+$/g, ''); $('cod').value = t; pintarResultados(); $('cod').focus(); };
+      reco.onerror = function (ev) { toast(ev.error === 'not-allowed' || ev.error === 'service-not-allowed' ? 'No hay permiso para usar el micrófono' : ev.error === 'no-speech' ? 'No te escuché' : 'El micrófono no está disponible acá'); };
+      reco.onend = function () { reco = null; b.classList.remove('escuchando'); };
+      b.classList.add('escuchando'); toast('Escuchando…'); reco.start();
+    } catch (e) { reco = null; b.classList.remove('escuchando'); toast('El micrófono no está disponible acá'); }
   });
 
   /* ---------- exportar ---------- */
@@ -687,13 +798,14 @@ progress{width:100%;height:14px;margin-top:10px}
   }
   cfgLeer(); aplicarHash();
   $('prov').value = CFG.prov || '';
-  idb().then(function () { return Promise.all([kvGet('base'), kvGet('basemeta'), kvGet('conteo'), kvGet('extra')]); }).then(function (r) {
-    BASE = r[0] || []; META = r[1] || null; CONTEO = r[2] || {}; EXTRA = r[3] || [];
-    indexar(); pintarTodo(); chipSync();
+  MODO = CFG.modo === 'consultar' ? 'consultar' : 'contar';
+  idb().then(function () { return Promise.all([kvGet('base'), kvGet('basemeta'), kvGet('conteo'), kvGet('extra'), kvGet('tanda')]); }).then(function (r) {
+    BASE = r[0] || []; META = r[1] || null; CONTEO = r[2] || {}; EXTRA = r[3] || []; TANDA = r[4] || {};
+    indexar(); setModo(MODO); pintarTodo(); chipSync();
     if (!nubeOk()) { hoja('hConfig', true); $('cfUrl').value = CFG.url; $('cfCli').value = CFG.cli; }
     else bajarBase(false, true).then(function () { return sincronizar(true); });
   });
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
-  window.__inv = { leido: leido, conteo: function () { return CONTEO; }, base: function () { return BASE.length; }, extra: function () { return EXTRA; } };
+  window.__inv = { tanda: function () { return TANDA; }, modo: function () { return MODO; }, leido: leido, conteo: function () { return CONTEO; }, base: function () { return BASE.length; }, extra: function () { return EXTRA; } };
 })();
 </script></body></html>
