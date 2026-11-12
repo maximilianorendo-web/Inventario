@@ -77,13 +77,23 @@ label.c{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px;font-w
 input[type=text],input[type=url],input[type=number],input[type=search],input:not([type]){font:inherit;font-size:16px;width:100%;padding:11px 12px;border:2px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);min-height:48px}
 input:focus{border-color:var(--accent);outline:none}
 #scan{position:fixed;inset:0;z-index:20;background:#000;display:flex;flex-direction:column}
-#scan video{flex:1;width:100%;object-fit:cover;min-height:0}
-.mira{position:absolute;left:12%;right:12%;top:22%;height:20%;border:3px solid rgba(255,255,255,.8);border-radius:14px;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
-#scan .barra2{background:#111;color:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
+#scan video{flex:none;width:100%;height:34vh;object-fit:cover}
+.mira{position:absolute;left:12%;right:12%;top:max(10vh,calc(env(safe-area-inset-top,0px) + 8vh));height:16vh;border:3px solid rgba(255,255,255,.8);border-radius:14px;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+#scan .barra2{flex:1;min-height:0;overflow-y:auto;background:#111;color:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
+#sf{background:#1a2030;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;flex:1;min-height:0}
+#sf .sf-top{display:flex;gap:12px;align-items:flex-start}
+#sf .sf-tit{flex:1;min-width:0;font-size:20px;font-weight:700;line-height:1.2;overflow-wrap:anywhere}
+#sf .sf-n{flex:none;text-align:center;min-width:64px}
+#sf .sf-n b{display:block;font-size:40px;line-height:1;font-weight:800;font-variant-numeric:tabular-nums}
+#sf .sf-n span{font-size:12px;color:#aab3c8}
+#sf .sf-l{color:#c9d0e0;font-size:16px;overflow-wrap:anywhere}
+#sf .sf-p{font-size:26px;font-weight:800;margin-top:2px}
+#sf .sf-p.cero{color:#ff8585;font-size:18px}
+#sf .sf-ya{color:#aab3c8;font-size:14px}
 #scan .modos{display:grid;grid-template-columns:1fr 1fr;background:#262b38;border-radius:10px;padding:3px;gap:3px}
 #scan .modos button{appearance:none;border:0;background:transparent;color:#aab3c8;font:inherit;font-weight:600;min-height:40px;border-radius:8px}
 #scan .modos button[aria-pressed="true"]{background:#fff;color:#111}
-#scan .scan-txt{min-height:44px;line-height:1.3}
+#scan .scan-txt{min-height:22px;line-height:1.3}
 #scan .scan-txt b{display:block;font-size:16px;overflow-wrap:anywhere}
 #scan .scan-txt span{color:#aab3c8;font-size:14px}
 #scan .scan-acc{display:flex;gap:8px}
@@ -144,6 +154,7 @@ progress{width:100%;height:14px;margin-top:10px}
   <video id="video" playsinline muted></video><div class="mira"></div>
   <div class="barra2">
     <div class="modos"><button type="button" id="mCons" aria-pressed="false">Consultar</button><button type="button" id="mCont" aria-pressed="true">Contar</button></div>
+    <div id="sf" hidden><div class="sf-top"><div class="sf-tit" id="sfT"></div><div class="sf-n"><b id="sfN"></b><span id="sfNl"></span></div></div><div class="sf-l" id="sfA"></div><div class="sf-l" id="sfE"></div><div class="sf-p" id="sfP"></div><div class="sf-ya" id="sfY"></div></div>
     <div class="scan-txt" id="scanTxt" aria-live="polite"></div>
     <div class="scan-acc"><button class="btn" id="scanCerrar" type="button">Cerrar</button><button class="btn luz" id="scanLuz" type="button" aria-pressed="false" hidden>Luz</button><button class="btn" id="scanMenos" type="button" aria-label="Restar uno al último">− 1</button><button class="btn" id="scanMas" type="button" aria-label="Sumar uno al último">+ 1</button><button class="btn pri" id="scanFin" type="button">Terminar</button></div>
   </div>
@@ -451,6 +462,20 @@ progress{width:100%;height:14px;margin-top:10px}
     return b;
   }
 
+  function pintarScanFicha() {
+    if ($('scan').hidden) return;
+    var k = ULT, sf = $('sf');
+    if (!k) { sf.hidden = true; return; }
+    var d = datosDe(k), o = CONTEO[k], t = TANDA[k] || 0, pr = precioDe(k), c = MODO === 'contar';
+    sf.hidden = false;
+    $('sfT').textContent = d.tit || '(sin título) ' + k;
+    $('sfA').textContent = d.a || '';
+    $('sfE').textContent = d.e || '';
+    $('sfP').textContent = pr ? 'PVP ' + pesos(pr) : 'sin precio'; $('sfP').className = 'sf-p' + (pr ? '' : ' cero');
+    $('sfN').textContent = c ? t : (o ? o.c : 0);
+    $('sfNl').textContent = c ? 'en la tanda' : 'contados';
+    $('sfY').textContent = c && o && o.c ? 'ya contados antes: ' + o.c : '';
+  }
   function pintarVacio() { $('vacioBuscar').hidden = !$('ultimo').hidden || !$('resultados').hidden; }
   function pintarUltimo() {
     var k = ULT, ficha = $('ultimo');
@@ -478,7 +503,7 @@ progress{width:100%;height:14px;margin-top:10px}
     $('mConsultar').setAttribute('aria-pressed', !c); $('mContar').setAttribute('aria-pressed', c);
     $('mCons').setAttribute('aria-pressed', !c); $('mCont').setAttribute('aria-pressed', c);
     $('scanMenos').hidden = !c; $('scanMas').hidden = !c; $('scanFin').hidden = !c;
-    pintarUltimo(); pintarResultados();
+    pintarUltimo(); pintarResultados(); pintarScanFicha();
   }
   function totales() {
     var t = 0, n = 0; for (var k in CONTEO) if (CONTEO[k].c > 0) { n++; t += CONTEO[k].c; }
@@ -488,7 +513,7 @@ progress{width:100%;height:14px;margin-top:10px}
     var tt = totales();
     $('totales').textContent = tt[0] ? tt[0] + ' títulos · ' + tt[1] + ' ejemplares contados' : '';
     $('nLista').textContent = tt[0] ? '(' + tt[0] + ')' : '';
-    pintarUltimo(); pintarTandaBar();
+    pintarUltimo(); pintarTandaBar(); pintarScanFicha();
     if (!$('vLista').hidden) pintarLista();
     if (!$('hTanda').hidden) pintarTanda();
     chipSync();
@@ -560,10 +585,10 @@ progress{width:100%;height:14px;margin-top:10px}
       if (MODO === 'contar' && !desdeCamara) { ULT = k; pintarTodo(); }
       else if (MODO === 'contar') {
         var n = agregarTanda(k, 1);
-        if (desdeCamara) textoScan('+1 · ' + d.tit, false, [pesos(pr), 'en la tanda ' + n + (o ? ' (ya contados ' + o.c + ')' : ''), resumenTanda()].filter(Boolean).join(' · '));
+        if (desdeCamara) textoScan('+1', false, resumenTanda());
       } else {
         ULT = k; pintarTodo();
-        if (desdeCamara) textoScan(d.tit, false, [d.a, pesos(pr), 'contados ' + (o ? o.c : 0)].filter(Boolean).join(' · '));
+        if (desdeCamara) textoScan('Listo para el siguiente', false, '');
       }
     } else {
       pitar(false);
@@ -725,7 +750,7 @@ progress{width:100%;height:14px;margin-top:10px}
       navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function (s) {
         scanStream = s; var v = $('video'); v.srcObject = s; $('scan').hidden = false; v.play();
         try { var caps = s.getVideoTracks()[0].getCapabilities ? s.getVideoTracks()[0].getCapabilities() : {}; $('scanLuz').hidden = !caps.torch; } catch (e) {}
-        ULTLEC = ''; TLEC = 0; pausaScan = false; textoScan();
+        ULTLEC = ''; TLEC = 0; pausaScan = false; textoScan(); pintarScanFicha();
         scanTimer = setInterval(function () {
           if (pausaScan) return;
           det.detect(v).then(function (r) {
@@ -747,11 +772,11 @@ progress{width:100%;height:14px;margin-top:10px}
   $('scanCerrar').addEventListener('click', function () { cerrarScan(); });
   $('scanFin').addEventListener('click', function () { cerrarScan(); if (Object.keys(TANDA).length) abrirTanda(); else toast('No contaste nada todavía'); });
   $('scanMenos').addEventListener('click', function () {
-    if (ULT && TANDA[ULT]) { var n = agregarTanda(ULT, -1); pitar(true); textoScan('−1 · ' + datosDe(ULT).tit, false, ['en la tanda ' + n, resumenTanda()].filter(Boolean).join(' · ')); }
+    if (ULT && TANDA[ULT]) { var n = agregarTanda(ULT, -1); pitar(true); textoScan('−1', false, resumenTanda()); }
     else textoScan('No hay nada de este libro en la tanda', true);
   });
   $('scanMas').addEventListener('click', function () {
-    if (ULT) { var n = agregarTanda(ULT, 1); pitar(true); textoScan('+1 · ' + datosDe(ULT).tit, false, ['en la tanda ' + n, resumenTanda()].filter(Boolean).join(' · ')); }
+    if (ULT) { var n = agregarTanda(ULT, 1); pitar(true); textoScan('+1', false, resumenTanda()); }
     else textoScan('Primero leé un libro', true);
   });
   $('scanLuz').addEventListener('click', function () {
