@@ -208,7 +208,8 @@ progress{width:100%;height:14px;margin-top:10px}
 
   /* ---------- nube (Firebase REST) ---------- */
   function nubeOk() { return CFG.url && CFG.cli; }
-  function ruta(p) { return CFG.url.replace(/\/+$/, '') + '/inv/' + encodeURIComponent(CFG.cli) + p + '.json'; }
+  /* va dentro de /stock/<clave>, que es lo que permiten las reglas de Firebase de Aleph */
+  function ruta(p) { return CFG.url.replace(/\/+$/, '') + '/stock/inv-' + encodeURIComponent(CFG.cli) + p + '.json'; }
   function http(metodo, p, cuerpo) {
     var o = { method: metodo };
     if (cuerpo !== undefined) { o.headers = { 'Content-Type': 'application/json' }; o.body = JSON.stringify(cuerpo); }
