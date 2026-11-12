@@ -36,6 +36,7 @@ input:focus,button:focus-visible{outline:3px solid var(--accent-soft);border-col
 .cant button{width:60px;height:60px;font-size:28px;border-radius:16px}
 .cant input{width:96px;text-align:center;font-size:30px;font-weight:700;min-height:60px}
 .vacio{color:var(--muted);text-align:center;padding:26px 8px}
+.res{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}.res:last-child{border-bottom:0}.res.sel{background:var(--accent-soft);margin:0 -12px;padding-left:12px;padding-right:12px}.res .tx{flex:1;min-width:0}.res .tx b{display:block}.res .tx span{color:var(--muted);font-size:13px}.res .n{color:var(--good);font-weight:700;white-space:nowrap}
 .tot{color:var(--muted);font-size:14px;margin-top:12px;text-align:center}
 .item{display:flex;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
 .item .tx{flex:1;min-width:0}.item .tx b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -67,8 +68,9 @@ progress{width:100%;height:14px;margin-top:10px}
   <input id="prov" list="provs" autocomplete="off" placeholder="Ej.: Editorial Planeta">
   <datalist id="provs"></datalist>
   <div class="fila" style="margin-top:12px"><button class="btn pri" id="btnScan" style="flex:1;font-size:18px;min-height:56px">📷 ESCANEAR</button></div>
-  <label class="c" for="cod">O escribí el código (Enter suma 1)</label>
-  <div class="fila"><input id="cod" inputmode="numeric" autocomplete="off" placeholder="9789…"><button class="btn" id="btnCod">SUMAR</button></div>
+  <label class="c" for="cod">O escribí el código, el título o el autor (Enter suma 1)</label>
+  <div class="fila"><input id="cod" inputmode="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="9789… o parte del título"><button class="btn" id="btnCod">SUMAR</button></div>
+  <div id="resultados" class="card" hidden style="padding:4px 12px"></div>
   <div id="ultimo" class="card ultimo" hidden>
     <div class="t" id="uT"></div><div class="m" id="uM"></div>
     <div class="cant"><button id="uMenos" aria-label="Restar uno">−</button><input id="uN" type="number" inputmode="numeric" min="0"><button id="uMas" aria-label="Sumar uno">+</button></div>
@@ -194,8 +196,7 @@ progress{width:100%;height:14px;margin-top:10px}
     IDX = new Map();
     function poner(fila) {
       variantes(soloCodigo(fila[0])).forEach(function (k) { if (k && !IDX.has(k)) IDX.set(k, fila); });
-      var i = soloCodigo(fila[1]);
-      if (i) variantes(i).forEach(function (k) { if (k && !IDX.has(k)) IDX.set(k, fila); });
+      String(fila[1] || '').split(' ').forEach(function (alt) { var i = soloCodigo(alt); if (i) variantes(i).forEach(function (k) { if (k && !IDX.has(k)) IDX.set(k, fila); }); });
     }
     for (var i = 0; i < BASE.length; i++) poner(BASE[i]);
     for (var j = 0; j < EXTRA.length; j++) poner(EXTRA[j]);
@@ -380,8 +381,67 @@ progress{width:100%;height:14px;margin-top:10px}
       abrirNuevo(c);
     }
   }
-  $('btnCod').addEventListener('click', function () { var v = $('cod').value; if (v.trim()) { leido(v, false); $('cod').value = ''; } $('cod').focus(); });
-  $('cod').addEventListener('keydown', function (e) { if (e.key === 'Enter') { e.preventDefault(); $('btnCod').click(); } });
+  /* ---------- búsqueda por título / autor ---------- */
+  var NORMS = null, RES = [], RES_SEL = 0, bT = null;
+  function filasTodas() { return BASE.concat(EXTRA); }
+  function buscarTexto(q) {
+    var ps = norm(q).split(/\s+/).filter(Boolean);
+    if (!ps.length) return [];
+    if (!NORMS || NORMS.n !== BASE.length + EXTRA.length) {
+      var t = filasTodas(); NORMS = { n: t.length, f: t, s: t.map(function (f) { return norm(f[2] + ' ' + f[3] + ' ' + f[4]); }) };
+    }
+    var sal = [];
+    for (var i = 0; i < NORMS.s.length && sal.length < 30; i++) {
+      var h = NORMS.s[i], ok = true;
+      for (var j = 0; j < ps.length; j++) if (h.indexOf(ps[j]) < 0) { ok = false; break; }
+      if (ok) sal.push(NORMS.f[i]);
+    }
+    return sal;
+  }
+  function pintarResultados() {
+    var q = $('cod').value.trim(), box = $('resultados');
+    if (!q || /^[\d\sXx-]+$/.test(q)) { RES = []; box.hidden = true; return; }     // solo números: es un código, no se busca por texto
+    RES = buscarTexto(q); RES_SEL = 0; box.innerHTML = '';
+    if (!RES.length) { box.hidden = false; var v = document.createElement('div'); v.className = 'vacio'; v.textContent = BASE.length ? 'No encontré ningún libro con eso' : 'Todavía no hay base cargada'; box.appendChild(v); return; }
+    RES.forEach(function (f, i) {
+      var cod = soloCodigo(f[0]), o = CONTEO[cod];
+      var d = document.createElement('div'); d.className = 'res' + (i === 0 ? ' sel' : '');
+      var tx = document.createElement('div'); tx.className = 'tx';
+      var b = document.createElement('b'); b.textContent = f[2];
+      var sp = document.createElement('span'); sp.textContent = [f[3], f[4]].filter(Boolean).join(' · ');
+      tx.appendChild(b); tx.appendChild(sp); d.appendChild(tx);
+      if (o && o.c > 0) { var n = document.createElement('div'); n.className = 'n'; n.textContent = '×' + o.c; d.appendChild(n); }
+      d.addEventListener('click', function () { elegirResultado(f); });
+      box.appendChild(d);
+    });
+    box.hidden = false;
+  }
+  function elegirResultado(f) {
+    sumar(soloCodigo(f[0]), 1); pitar(true);
+    $('cod').value = ''; $('resultados').hidden = true; RES = []; $('cod').focus();
+  }
+  function moverSel(d) {
+    if (!RES.length) return;
+    RES_SEL = (RES_SEL + d + RES.length) % RES.length;
+    var h = $('resultados').children;
+    for (var i = 0; i < h.length; i++) h[i].classList.toggle('sel', i === RES_SEL);
+    if (h[RES_SEL] && h[RES_SEL].scrollIntoView) h[RES_SEL].scrollIntoView({ block: 'nearest' });
+  }
+  function aceptarCodigo() {
+    var v = $('cod').value.trim(); if (!v) return;
+    if (/^[\d\sXx-]+$/.test(v)) { leido(v, false); $('cod').value = ''; $('resultados').hidden = true; }
+    else if (RES.length) elegirResultado(RES[RES_SEL]);
+    else toast('No encontré ningún libro con eso');
+    $('cod').focus();
+  }
+  $('btnCod').addEventListener('click', aceptarCodigo);
+  $('cod').addEventListener('input', function () { clearTimeout(bT); bT = setTimeout(pintarResultados, 180); });
+  $('cod').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); clearTimeout(bT); if (!/^[\d\sXx-]*$/.test($('cod').value) && !RES.length) pintarResultados(); aceptarCodigo(); }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); moverSel(1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); moverSel(-1); }
+    else if (e.key === 'Escape') { $('cod').value = ''; $('resultados').hidden = true; RES = []; }
+  });
   $('uMas').addEventListener('click', function () { if (ULT) sumar(ULT, 1); });
   $('uMenos').addEventListener('click', function () { if (ULT) sumar(ULT, -1); });
   $('uN').addEventListener('change', function () { var v = parseInt($('uN').value, 10); if (ULT && !isNaN(v) && v >= 0) sumar(ULT, 0, v); });
@@ -537,16 +597,26 @@ progress{width:100%;height:14px;margin-top:10px}
       iTit = col('titulo', 'nombre', 'descripcion'), iAut = col('autor', 'autores'), iEdi = col('editorial', 'editor');
     if (iTit < 0 || (iCod < 0 && iIsbn < 0 && iBar < 0)) throw new Error('No encuentro las columnas Codigo y Titulo en la primera fila');
     var vistos = new Set(), out = [], sinCod = 0;
+    /* Un código sirve para escanear si, sin ceros a la izquierda, tiene 13 dígitos (EAN/ISBN-13) o 10 (ISBN-10). Los demás son códigos internos. */
+    function limpio(v) { var c = soloCodigo(v), z = c.replace(/^0+/, ''); return (/^\d{13}$/.test(z) || /^\d{9}[\dX]$/.test(z)) ? z : ''; }
     for (var r = 1; r < filas.length; r++) {
       var f = filas[r]; if (f.length < 2) continue;
-      var cands = [iCod, iBar, iIsbn].map(function (i) { return i >= 0 ? soloCodigo(f[i]) : ''; });
-      var cod = '';
-      for (var k = 0; k < cands.length; k++) if (/^\d{8,14}$/.test(cands[k]) || /^\d{9}[\dX]$/.test(cands[k])) { cod = cands[k]; break; }
-      var tit = (f[iTit] || '').trim();
-      if (!cod || !tit) { sinCod++; continue; }
+      var tit = (f[iTit] || '').trim(); if (!tit) { sinCod++; continue; }
+      var orden = [iBar, iIsbn, iCod], reales = [], internos = [];
+      orden.forEach(function (i) {
+        if (i < 0) return;
+        var l = limpio(f[i]); if (l && reales.indexOf(l) < 0) reales.push(l);
+      });
+      [iCod, iBar, iIsbn].forEach(function (i) {
+        if (i < 0) return;
+        var crudo = soloCodigo(f[i]);
+        if (!limpio(f[i]) && /^\d{4,14}$/.test(crudo) && !/^0+$/.test(crudo) && internos.indexOf(crudo) < 0) internos.push(crudo);
+      });
+      var todos = reales.concat(internos);
+      if (!todos.length) { sinCod++; continue; }
+      var cod = todos[0];
       if (vistos.has(cod)) continue; vistos.add(cod);
-      var isbn = iIsbn >= 0 ? soloCodigo(f[iIsbn]) : '';
-      out.push([cod, isbn && isbn !== cod ? isbn : '', tit, iAut >= 0 ? (f[iAut] || '').trim() : '', iEdi >= 0 ? (f[iEdi] || '').trim() : '']);
+      out.push([cod, todos.slice(1).join(' '), tit, iAut >= 0 ? (f[iAut] || '').trim() : '', iEdi >= 0 ? (f[iEdi] || '').trim() : '']);
     }
     return { filas: out, sinCodigo: sinCod };
   }
