@@ -984,6 +984,29 @@ progress{width:100%;height:14px;margin-top:10px}
     if (!nubeOk()) { hoja('hConfig', true); $('cfUrl').value = CFG.url; $('cfCli').value = CFG.cli; }
     else bajarBase(false, true).then(function () { return sincronizar(true); });
   });
+  /* ---------- botón «atrás» del teléfono: cierra lo que esté abierto; en la pantalla principal hay que apretarlo dos veces ---------- */
+  var ultAtras = 0;
+  function cerrarLoUltimo() {
+    var hs = ['hPrecio', 'hNuevo', 'hTanda', 'hConfig', 'hAdmin', 'hMenu'];
+    for (var i = 0; i < hs.length; i++) if (!$(hs[i]).hidden) {
+      if (hs[i] === 'hNuevo') cerrarNuevo(); else $(hs[i]).hidden = true;
+      if (hs[i] === 'hTanda') $('cod').focus();
+      return true;
+    }
+    if (!$('scan').hidden) { cerrarScan(); return true; }
+    if (!$('vLista').hidden) { pestana('contar'); return true; }
+    return false;
+  }
+  try {
+    history.replaceState({ inv: 'base' }, '');
+    history.pushState({ inv: 'guardia' }, '');
+    window.addEventListener('popstate', function () {
+      if (cerrarLoUltimo()) { history.pushState({ inv: 'guardia' }, ''); return; }
+      var t = Date.now();
+      if (t - ultAtras < 2500) { ultAtras = 0; history.back(); return; }      // segunda vez: sale de la app
+      ultAtras = t; history.pushState({ inv: 'guardia' }, ''); toast('Tocá «atrás» otra vez para salir', 2200);
+    });
+  } catch (e) {}
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(function () {});
   window.__inv = { tanda: function () { return TANDA; }, modo: function () { return MODO; }, leido: leido, conteo: function () { return CONTEO; }, base: function () { return BASE.length; }, precios: function () { return PRECIOS; }, precioDe: precioDe, extra: function () { return EXTRA; } };
 })();
