@@ -40,8 +40,8 @@ header .btn{background:transparent;color:var(--hdr-ink);border-color:rgba(255,25
 .btn.icono{display:inline-flex;align-items:center;justify-content:center;width:52px;min-height:52px;padding:0}
 .btn.icono.escuchando{background:var(--bad);border-color:var(--bad);color:#fff;animation:late 1s ease-in-out infinite}
 @keyframes late{50%{opacity:.65}}
-.sins{display:flex;gap:8px;flex-wrap:wrap}
-.sin{appearance:none;border:1.5px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+.sins{display:flex;gap:6px;flex-wrap:nowrap;align-items:center}
+.sin{appearance:none;border:1.5px solid var(--line);background:var(--panel);color:var(--muted);border-radius:999px;padding:6px 10px;font:inherit;font-size:14px;white-space:nowrap;font-weight:600;cursor:pointer}
 .sin[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 .lista{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .fila{display:flex;gap:12px;align-items:center;padding:11px 14px;border-top:1px solid var(--line);cursor:pointer;width:100%;text-align:left;background:transparent;color:inherit;font:inherit;border-left:0;border-right:0;border-bottom:0}
@@ -77,8 +77,8 @@ label.c{display:block;font-size:13px;color:var(--muted);margin:10px 0 4px;font-w
 input[type=text],input[type=url],input[type=number],input[type=search],input:not([type]){font:inherit;font-size:16px;width:100%;padding:11px 12px;border:2px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);min-height:48px}
 input:focus{border-color:var(--accent);outline:none}
 #scan{position:fixed;inset:0;z-index:20;background:#000;display:flex;flex-direction:column}
-#scan video{flex:none;width:100%;height:34vh;object-fit:cover}
-.mira{position:absolute;left:12%;right:12%;top:max(10vh,calc(env(safe-area-inset-top,0px) + 8vh));height:16vh;border:3px solid rgba(255,255,255,.8);border-radius:14px;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
+#scan video{flex:none;width:100%;height:44vh;object-fit:cover}
+.mira{position:absolute;left:12%;right:12%;top:max(12vh,calc(env(safe-area-inset-top,0px) + 10vh));height:20vh;border:3px solid rgba(255,255,255,.8);border-radius:14px;pointer-events:none;box-shadow:0 0 0 999px rgba(0,0,0,.35)}
 #scan .barra2{flex:1;min-height:0;overflow-y:auto;background:#111;color:#fff;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:10px}
 #sf{background:#1a2030;border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;flex:1;min-height:0}
 #sf .sf-top{display:flex;gap:12px;align-items:flex-start}
@@ -90,7 +90,8 @@ input:focus{border-color:var(--accent);outline:none}
 #sf .sf-p{font-size:26px;font-weight:800;margin-top:2px}
 #sf .sf-p.cero{color:#ff8585;font-size:18px}
 #sf .sf-ya{color:#aab3c8;font-size:14px}
-#scan .modos{display:grid;grid-template-columns:1fr 1fr;background:#262b38;border-radius:10px;padding:3px;gap:3px}
+#scan .modos-fila{display:flex;gap:8px}
+#scan .modos{flex:1;display:grid;grid-template-columns:1fr 1fr;background:#262b38;border-radius:10px;padding:3px;gap:3px}
 #scan .modos button{appearance:none;border:0;background:transparent;color:#aab3c8;font:inherit;font-weight:600;min-height:40px;border-radius:8px}
 #scan .modos button[aria-pressed="true"]{background:#fff;color:#111}
 #scan .scan-txt{min-height:22px;line-height:1.3}
@@ -129,7 +130,7 @@ progress{width:100%;height:14px;margin-top:10px}
       <button class="btn icono" id="btnMic" type="button" aria-label="Buscar por voz" title="Buscar por voz" hidden><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11.5a6.5 6.5 0 0 0 13 0M12 18v3M9 21h6"/></svg></button>
       <button class="btn icono" id="btnCam" type="button" aria-label="Escanear con la cámara" title="Escanear con la cámara"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7H8l1.2-2h5.6L16 7h2.5A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z"/><circle cx="12" cy="13" r="3.6"/></svg></button>
     </div>
-    <div class="sins"><button class="sin" id="mConsultar" type="button" aria-pressed="false">Consultar</button><button class="sin" id="mContar" type="button" aria-pressed="true">Contar</button></div>
+    <div class="sins"><button class="sin" id="mConsultar" type="button" aria-pressed="false">Consultar</button><button class="sin" id="mContar" type="button" aria-pressed="true">Contar</button><span style="flex:1;min-width:0"></span><button class="sin" id="pNuevo" type="button" aria-pressed="true">Nuevo</button><button class="sin" id="pUsado" type="button" aria-pressed="false">Usado</button></div>
     <div id="resultados" class="lista" hidden></div>
     <div id="ultimo" class="ficha" hidden>
       <h2 id="uT"></h2><div class="sub" id="uM"></div>
@@ -153,7 +154,7 @@ progress{width:100%;height:14px;margin-top:10px}
 <div id="scan" hidden>
   <video id="video" playsinline muted></video><div class="mira"></div>
   <div class="barra2">
-    <div class="modos"><button type="button" id="mCons" aria-pressed="false">Consultar</button><button type="button" id="mCont" aria-pressed="true">Contar</button></div>
+    <div class="modos-fila"><div class="modos"><button type="button" id="mCons" aria-pressed="false">Consultar</button><button type="button" id="mCont" aria-pressed="true">Contar</button></div><div class="modos"><button type="button" id="eNuevo" aria-pressed="true">Nuevo</button><button type="button" id="eUsado" aria-pressed="false">Usado</button></div></div>
     <div id="sf" hidden><div class="sf-top"><div class="sf-tit" id="sfT"></div><div class="sf-n"><b id="sfN"></b><span id="sfNl"></span></div></div><div class="sf-l" id="sfA"></div><div class="sf-l" id="sfE"></div><div class="sf-p" id="sfP"></div><div class="sf-ya" id="sfY"></div></div>
     <div class="scan-txt" id="scanTxt" aria-live="polite"></div>
     <div class="scan-acc"><button class="btn" id="scanCerrar" type="button">Cerrar</button><button class="btn luz" id="scanLuz" type="button" aria-pressed="false" hidden>Luz</button><button class="btn" id="scanMenos" type="button" aria-label="Restar uno al último">− 1</button><button class="btn" id="scanMas" type="button" aria-label="Sumar uno al último">+ 1</button><button class="btn pri" id="scanFin" type="button">Terminar</button></div>
@@ -256,6 +257,7 @@ progress{width:100%;height:14px;margin-top:10px}
   var META = null;          // {n, chunks, t} de la base que está en el teléfono
   var EXTRA = [];           // libros agregados en este teléfono: [cod, '', tit, aut, edi, t, sync]
   var TANDA = {};           // lo contado que todavía no se confirmó: cod -> cantidad
+  var EST = 'nuevo';       // 'nuevo' o 'usado': lo que se cuenta a partir de ahora
   var MODO = 'contar';      // 'contar' o 'consultar'
   var CONTEO = {};          // cod -> {c, tit, a, e, t, s}   (s = ya subido a la nube)
   var IDX = new Map();
@@ -291,7 +293,9 @@ progress{width:100%;height:14px;margin-top:10px}
     for (var i = 0; i < BASE.length; i++) poner(BASE[i]);
     for (var j = 0; j < EXTRA.length; j++) poner(EXTRA[j]);
   }
+  function esUsado(k) { return /~u$/.test(String(k)); }
   function buscar(c) {
+    c = String(c).replace(/~u$/, '');
     var v = variantes(c);
     for (var i = 0; i < v.length; i++) { var f = IDX.get(v[i]); if (f) return f; }
     return null;
@@ -398,7 +402,7 @@ progress{width:100%;height:14px;margin-top:10px}
   /* ---------- conteo ---------- */
   function ahora() { return Date.now(); }
   function sumar(cod, delta, fijar) {
-    var fila = buscar(cod), k = fila ? soloCodigo(fila[0]) || cod : cod;
+    var fila = buscar(cod), base = String(cod).replace(/~u$/, ''), k = (fila ? soloCodigo(fila[0]) || base : base) + (esUsado(cod) ? '~u' : '');
     var o = CONTEO[k];
     if (!o) o = CONTEO[k] = { c: 0, tit: fila ? fila[2] : '', a: fila ? fila[3] : '', e: fila ? fila[4] : '', t: 0, s: 0 };
     o.c = Math.max(0, fijar != null ? fijar : o.c + delta);
@@ -408,10 +412,14 @@ progress{width:100%;height:14px;margin-top:10px}
     return o;
   }
   var ULT = null;
-  function claveDe(cod) { var f = buscar(cod); return f ? (soloCodigo(f[0]) || cod) : cod; }
+  /* nueva = viene de una lectura / búsqueda: toma el estado elegido (Nuevo/Usado). Si ya trae «~u», es un usado. */
+  function claveDe(cod, nueva) {
+    var base = String(cod).replace(/~u$/, ''), f = buscar(base), k = f ? (soloCodigo(f[0]) || base) : base;
+    return (esUsado(cod) || (nueva && EST === 'usado')) ? k + '~u' : k;
+  }
   function datosDe(k) {
     var f = buscar(k), o = CONTEO[k];
-    return { tit: f ? f[2] : (o ? o.tit : ''), a: f ? f[3] : (o ? o.a : ''), e: f ? f[4] : (o ? o.e : '') };
+    return { tit: (f ? f[2] : (o ? o.tit : '')) + (esUsado(k) ? ' [USADO]' : ''), a: f ? f[3] : (o ? o.a : ''), e: f ? f[4] : (o ? o.e : '') };
   }
   /* En modo CONTAR todo lo que se lee o se elige va a la «tanda»; recién al confirmarla pasa al stock. */
   function agregarTanda(cod, delta, fijar) {
@@ -484,7 +492,7 @@ progress{width:100%;height:14px;margin-top:10px}
     ficha.hidden = false;
     var o = CONTEO[k], t = TANDA[k] || 0, pr = precioDe(k);
     $('uT').textContent = d.tit || '(sin título) ' + k;
-    $('uM').textContent = [d.a, d.e, k].filter(Boolean).join(' · ');
+    $('uM').textContent = [d.a, d.e, String(k).replace(/~u$/, '')].filter(Boolean).join(' · ');
     $('uP').textContent = pr ? pesos(pr) : 'sin precio'; $('uP').className = 'num' + (pr ? '' : ' cero');
     $('uPrecio').textContent = pr ? 'Cambiar precio' : 'Poner precio';
     $('uC').textContent = 'Contados: ' + (o ? o.c : 0) + (t ? ' · en esta tanda: ' + t : '');
@@ -503,6 +511,15 @@ progress{width:100%;height:14px;margin-top:10px}
     $('mConsultar').setAttribute('aria-pressed', !c); $('mContar').setAttribute('aria-pressed', c);
     $('mCons').setAttribute('aria-pressed', !c); $('mCont').setAttribute('aria-pressed', c);
     $('scanMenos').hidden = !c; $('scanMas').hidden = !c; $('scanFin').hidden = !c;
+    pintarUltimo(); pintarResultados(); pintarScanFicha();
+  }
+  function setEst(e) {
+    EST = e === 'usado' ? 'usado' : 'nuevo'; CFG.est = EST; cfgGuardar();
+    var u = EST === 'usado';
+    $('pNuevo').setAttribute('aria-pressed', !u); $('pUsado').setAttribute('aria-pressed', u);
+    $('eNuevo').setAttribute('aria-pressed', !u); $('eUsado').setAttribute('aria-pressed', u);
+    var sg = ULT ? claveDe(String(ULT).replace(/~u$/, ''), true) : null;      // la ficha pasa al mismo libro en el otro estado
+    if (sg) ULT = sg;
     pintarUltimo(); pintarResultados(); pintarScanFicha();
   }
   function totales() {
@@ -536,11 +553,11 @@ progress{width:100%;height:14px;margin-top:10px}
     var claves = Object.keys(CONTEO).filter(function (k) { return CONTEO[k].c > 0; }).sort(function (a, b) { return CONTEO[b].t - CONTEO[a].t; });
     var n = 0, u = 0, valor = 0;
     claves.forEach(function (k) {
-      var o = CONTEO[k], hay = norm(o.tit + ' ' + o.a + ' ' + k);
+      var o = CONTEO[k], hay = norm(o.tit + ' ' + o.a + ' ' + k + (esUsado(k) ? ' usado' : ''));
       if (q.length && !q.every(function (w) { return hay.indexOf(w) >= 0; })) return;
       n++; u += o.c; valor += o.c * precioDe(k);
       if (n > 200) return;
-      l.appendChild(filaItem(k, o.tit, [o.a, o.e].filter(Boolean).join(' · ') || k, o.c,
+      l.appendChild(filaItem(k, o.tit + (esUsado(k) ? ' [USADO]' : ''), [o.a, o.e].filter(Boolean).join(' · ') || k, o.c,
         function (v) { sumar(k, 0, v); },
         function () { if (confirm('¿Sacar «' + (o.tit || k) + '» del conteo?')) sumar(k, 0, 0); }));
     });
@@ -580,7 +597,7 @@ progress{width:100%;height:14px;margin-top:10px}
     if (c.length < 8) { pitar(false); if (desdeCamara) textoScan('Código no válido: ' + crudo, true); else toast('Código no válido'); return; }
     var fila = buscar(c);
     if (fila) {
-      var k = claveDe(c), d = datosDe(k), o = CONTEO[k], pr = precioDe(k);
+      var k = claveDe(c, true), d = datosDe(k), o = CONTEO[k], pr = precioDe(k);
       pitar(true);
       if (MODO === 'contar' && !desdeCamara) { ULT = k; pintarTodo(); }
       else if (MODO === 'contar') {
@@ -620,7 +637,7 @@ progress{width:100%;height:14px;margin-top:10px}
     RES = buscarTexto(q); RES_SEL = 0; box.innerHTML = '';
     if (!RES.length) { box.hidden = false; var v = document.createElement('div'); v.className = 'vacio'; v.style.border = '0'; var bb = document.createElement('b'); bb.textContent = BASE.length ? 'No encontré ningún libro con eso' : 'Todavía no hay base cargada'; v.appendChild(bb); box.appendChild(v); pintarVacio(); return; }
     RES.forEach(function (f, i) {
-      var cod = soloCodigo(f[0]), o = CONTEO[cod];
+      var cod = soloCodigo(f[0]), o = CONTEO[claveDe(cod, true)];
       var d = document.createElement('div'); d.className = 'fila'; d.setAttribute('aria-selected', i === 0);
       var tx = document.createElement('div'); tx.className = 'txt';
       var b = document.createElement('div'); b.className = 't'; b.textContent = f[2];
@@ -634,7 +651,7 @@ progress{width:100%;height:14px;margin-top:10px}
     box.hidden = false; pintarVacio();
   }
   function elegirResultado(f) {
-    var k = soloCodigo(f[0]);
+    var k = claveDe(soloCodigo(f[0]), true);
     pitar(true); ULT = k; pintarTodo();
     $('cod').value = ''; $('resultados').hidden = true; RES = []; $('borrarQ').hidden = true; pintarVacio(); $('cod').focus();
   }
@@ -664,6 +681,10 @@ progress{width:100%;height:14px;margin-top:10px}
   $('uN').addEventListener('change', function () { var v = parseInt($('uN').value, 10); if (ULT && !isNaN(v) && v >= 0) agregarTanda(ULT, 0, v); });
   $('mConsultar').addEventListener('click', function () { setModo('consultar'); });
   $('mContar').addEventListener('click', function () { setModo('contar'); });
+  $('pNuevo').addEventListener('click', function () { setEst('nuevo'); });
+  $('pUsado').addEventListener('click', function () { setEst('usado'); });
+  $('eNuevo').addEventListener('click', function () { setEst('nuevo'); textoScan('Contando libros NUEVOS', false, ''); });
+  $('eUsado').addEventListener('click', function () { setEst('usado'); textoScan('Contando libros USADOS', false, ''); });
   $('mCons').addEventListener('click', function () { setModo('consultar'); textoScan('Modo Consultar', false, 'Solo muestra el libro, no suma'); });
   $('mCont').addEventListener('click', function () { setModo('contar'); textoScan(); });
   $('uPrecio').addEventListener('click', function () { if (ULT) abrirPrecio(ULT); });
@@ -711,8 +732,8 @@ progress{width:100%;height:14px;margin-top:10px}
     EXTRA.push(fila); indexar();
     var pv = numPrecio($('nPvp').value); if (pv > 0) PRECIOS[c] = { p: pv, t: ahora(), s: 0 };
     pitar(true);
-    if (nuevoSuma) { agregarTanda(c, 1); if (!$('scan').hidden) textoScan('Agregado y +1 · ' + tit); }
-    else { ULT = c; pintarTodo(); if (!$('scan').hidden) textoScan('Agregado a la base · ' + tit); }
+    if (nuevoSuma) { agregarTanda(claveDe(c, true), 1); if (!$('scan').hidden) textoScan('Agregado y +1 · ' + tit); }
+    else { ULT = claveDe(c, true); pintarTodo(); if (!$('scan').hidden) textoScan('Agregado a la base · ' + tit); }
     guardarPronto(); programarSync();
     cerrarNuevo();
   });
@@ -820,10 +841,10 @@ progress{width:100%;height:14px;margin-top:10px}
   /* ---------- exportar ---------- */
   function csvCampo(v) { v = String(v == null ? '' : v); return /[;"\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
   function exportar() {
-    var filas = [['codigo', 'titulo', 'autor', 'editorial', 'pvp', 'cantidad']];
+    var filas = [['codigo', 'titulo', 'autor', 'editorial', 'estado', 'pvp', 'cantidad']];
     Object.keys(CONTEO).filter(function (k) { return CONTEO[k].c > 0; }).sort(function (a, b) {
-      return norm(CONTEO[a].tit).localeCompare(norm(CONTEO[b].tit));
-    }).forEach(function (k) { var o = CONTEO[k]; var pr = precioDe(k); filas.push([k, o.tit, o.a, o.e, pr ? String(pr).replace('.', ',') : '', o.c]); });
+      return norm(CONTEO[a].tit + (esUsado(a) ? '~' : '')).localeCompare(norm(CONTEO[b].tit + (esUsado(b) ? '~' : '')));
+    }).forEach(function (k) { var o = CONTEO[k]; var pr = precioDe(k); filas.push([k.replace(/~u$/, ''), o.tit, o.a, o.e, esUsado(k) ? 'usado' : 'nuevo', pr ? String(pr).replace('.', ',') : '', o.c]); });
     if (filas.length === 1) { toast('Todavía no contaste nada'); return; }
     var texto = '﻿' + filas.map(function (f) { return f.map(csvCampo).join(';'); }).join('\r\n') + '\r\n';
     var d = new Date(), nombre = 'inventario_' + d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2) + '.csv';
@@ -956,10 +977,10 @@ progress{width:100%;height:14px;margin-top:10px}
     cfgGuardar();
   }
   cfgLeer(); aplicarHash();
-  MODO = CFG.modo === 'consultar' ? 'consultar' : 'contar';
+  MODO = CFG.modo === 'consultar' ? 'consultar' : 'contar'; EST = CFG.est === 'usado' ? 'usado' : 'nuevo';
   idb().then(function () { return Promise.all([kvGet('base'), kvGet('basemeta'), kvGet('conteo'), kvGet('extra'), kvGet('tanda'), kvGet('precios')]); }).then(function (r) {
     BASE = r[0] || []; META = r[1] || null; CONTEO = r[2] || {}; EXTRA = r[3] || []; TANDA = r[4] || {}; PRECIOS = r[5] || {};
-    indexar(); setModo(MODO); pintarTodo(); chipSync();
+    indexar(); setEst(EST); setModo(MODO); pintarTodo(); chipSync();
     if (!nubeOk()) { hoja('hConfig', true); $('cfUrl').value = CFG.url; $('cfCli').value = CFG.cli; }
     else bajarBase(false, true).then(function () { return sincronizar(true); });
   });
